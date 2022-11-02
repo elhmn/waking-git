@@ -10,12 +10,12 @@ code smell, in the programming language the code is written on.
 
 ## Resources
 
-Building this project require to know what is the state code scanning and data visualisation.
+Building this project require to know what is the of state code scanning and data visualisation researches.
 Here is a list of research papers and code visualisers that will be useful to work on this project:
 
 - [codeology](https://demo.marpi.pl/codeology/) brings life to your source code, by generating a creature that represents your code structure
 - [Gource](https://github.com/acaudwell/Gource) is a git history visualiser
-- [Visual softare analytics](https://home.uni-leipzig.de/svis) (VSA) is a research groupe that explore different ways to represent complex software systems
+- [Visual softare analytics](https://home.uni-leipzig.de/svis) (VSA) is a research group that explore different ways to represent complex software systems
 - [getaviz](https://home.uni-leipzig.de/svis/getaviz/index.php?setup=web/RD%20C&model=RD%20C%20busybox&aframe=true) is a [tool](https://github.com/softvis-research/Getaviz) built by the VSA, to visualise code structure
 - [static code analysers](https://github.com/analysis-tools-dev/static-analysis)
 - [dynamic code analysers](https://github.com/analysis-tools-dev/dynamic-analysis)
