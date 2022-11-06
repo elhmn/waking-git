@@ -42,6 +42,10 @@ The project is build using the `rust` programming language, and uses git as a st
 - [Docker](https://docs.docker.com/engine/install/)
 - [GNU make](https://www.gnu.org/software/make/)
 
+### Architecture
+
+Please read the draft of the [architecture](https://github.com/elhmn/waking-git/blob/main/docs/Architecture.md).
+
 ### How to run?
 
 In order to run `waking-git` you need to [install](https://www.rust-lang.org/tools/install) the rust tool chain.
