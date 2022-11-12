@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// scans a git repository and extracts world data
-    Scan(scan::RunCmd),
+    Scan(scan::RunArgs),
 }
 
 /// `Wake` git repository world generator
@@ -20,8 +20,8 @@ pub fn run() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Scan(cmd) => {
-            scan::run(cmd);
+        Commands::Scan(args) => {
+            scan::run(args);
         }
     }
 }
