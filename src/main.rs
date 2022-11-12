@@ -1,3 +1,5 @@
+mod cmd;
+
 fn main() {
-    println!("Your git world generator!");
+    cmd::run();
 }
