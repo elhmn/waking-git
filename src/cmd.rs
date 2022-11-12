@@ -1,6 +1,7 @@
 pub mod scan;
 
 use clap::{Parser, Subcommand};
+use crate::config;
 
 #[derive(Subcommand, Debug)]
 enum Commands {
@@ -16,12 +17,12 @@ struct Cli {
     command: Commands,
 }
 
-pub fn run() {
+pub fn run(conf: config::Config) {
     let cli = Cli::parse();
 
     match &cli.command {
         Commands::Scan(args) => {
-            scan::run(args);
+            scan::run(args, conf);
         }
     }
 }

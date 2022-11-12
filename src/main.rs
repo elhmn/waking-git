@@ -1,5 +1,7 @@
 mod cmd;
+mod config;
 
 fn main() {
-    cmd::run();
+    let conf = config::Config::new();
+    cmd::run(conf);
 }
