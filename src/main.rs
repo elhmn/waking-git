@@ -1,3 +1,7 @@
+mod cmd;
+mod config;
+
 fn main() {
-    println!("Your git world generator!");
+    let conf = config::Config::new();
+    cmd::run(conf);
 }
