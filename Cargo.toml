@@ -1,5 +1,5 @@
 [package]
-name = "waking"
+name = "wake"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,3 +9,7 @@ edition = "2021"
 clap = { version = "4.0.23", features = ["derive"] }
 git2 = "0.15.0"
 url = "2.3.1"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "2.1"
