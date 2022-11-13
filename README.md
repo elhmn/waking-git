@@ -33,6 +33,7 @@ Here is a list of research papers and code visualisers that will be useful to wo
 	- [9](https://www.researchgate.net/publication/220818819_A_Visual_Analytics_Tool_for_Software_Project_Structure_and_Relationships_among_Classes)
 	- [10](https://opus-htw-aalen.bsz-bw.de/frontdoor/deliver/index/docId/658/file/ICCSE16-SEE.pdf)
 	- [11](https://blog.ndepend.com/visualize-code-with-software-architecture-diagrams/)
+	- [12](https://www.researchgate.net/publication/347700460_rust-code-analysis_A_Rust_library_to_analyze_and_extract_maintainability_information_from_source_codes)
 
 ## Development
 The project is build using the `rust` programming language, and uses git as a strong dependency.
