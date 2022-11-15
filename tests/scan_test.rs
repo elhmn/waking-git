@@ -29,6 +29,10 @@ fn fail_to_parse_wrong_url() -> Result<(), Box<dyn std::error::Error>> {
             exp: "not a https url",
         },
         Test {
+            url: "https://githubcom/elhmn/ckp",
+            exp: "failed to resolve address for githubcom",
+        },
+        Test {
             url: "http://",
             exp: "Failed to parse",
         },

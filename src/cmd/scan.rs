@@ -2,10 +2,8 @@ use crate::config;
 use clap::Args;
 use git2::Repository;
 use std::fs;
-use std::io::Error;
 use std::path;
-use std::process;
-use url::{Host, Position, Url};
+use url::Url;
 
 #[derive(Args, Debug)]
 pub struct RunArgs {
