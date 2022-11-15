@@ -11,6 +11,19 @@ This is a rough description of what the program architecture is supposed to look
 	This data will be stored in a directory named after a slug of your repository `owner/name`.
 - The Player will use data extracted from your repository to create a world to explore.
 
+#### Components
+```mermaid
+flowchart LR
+
+Repos --> |git repository| Extractor
+Extractor --> |git or code structure data| Converter
+Converter --> |game entities| Player
+```
+
+From the `Repos` we fetched and stored on disk, the `extractor` will get data about the git tree
+and the code structure. This data will then be picked up and `Converted` into a list of game entities
+such as NPCs, enemies, bosses and decors. This list of entities will be used by the `Player`
+to generate the game or simulated world.
 
 ### Code scanner:
 
@@ -44,3 +57,5 @@ the scanner and create the playable world created by the scanner.
 ```console
 $ wake play <the_https_url_of_your_source_code>
 ```
+
+
