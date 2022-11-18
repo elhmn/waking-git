@@ -9,6 +9,6 @@ pub struct Data {
 pub fn run(repo: repo::Repo) -> Data {
     println!("main extractor called!");
     return Data {
-        git: git::new(repo),
+        git: git::new(&repo),
     }
 }
