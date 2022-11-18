@@ -3,7 +3,7 @@ use url::Url;
 use std::path;
 
 pub struct Repo {
-    repo: Repository,
+    pub repo: Repository,
 }
 
 pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, String> {
