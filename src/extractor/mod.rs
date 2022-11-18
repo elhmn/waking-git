@@ -1,14 +1,17 @@
+pub mod code;
 pub mod git;
 
 use crate::repo;
 
 pub struct Data {
     pub git: git::Git,
+    pub code: code::Code,
 }
 
-pub fn run(repo: repo::Repo) -> Data {
+pub fn run(repo: repo::Repo) -> Result<Data, String> {
     println!("main extractor called!");
-    return Data {
+    return Ok(Data {
         git: git::new(&repo),
-    }
+        code: code::new(&repo)?,
+    })
 }
