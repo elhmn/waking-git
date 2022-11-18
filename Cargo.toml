@@ -13,3 +13,4 @@ url = "2.3.1"
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "2.1"
+rust-code-analysis = "0.0.24"
