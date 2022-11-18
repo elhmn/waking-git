@@ -2,7 +2,7 @@ use git2::Repository;
 use url::Url;
 use std::path;
 
-pub fn new_repo_from_url(url: String, tmp_folder: &String) -> Result<Repo, String> {
+pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, String> {
     //Validate url and extract repository name
     let repo_name: String;
     let repo_owner: String;
@@ -39,7 +39,7 @@ pub fn new_repo_from_url(url: String, tmp_folder: &String) -> Result<Repo, Strin
     //Clone the repository if it doesn't exist on disk
     let dest_path = format!(
         "{}/{}{}-{}",
-        tmp_folder, host_name, repo_owner, repo_name
+        repo_storage, host_name, repo_owner, repo_name
     );
     let git_repo: Repository;
     let path = path::Path::new(&dest_path);

@@ -1,4 +1,5 @@
 use crate::config;
+use crate::extractor;
 use crate::repo;
 use clap::Args;
 use std::fs;
@@ -16,6 +17,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
     let repo = args.repository.clone().unwrap_or("".to_string());
 
     clone_repository(repo, conf);
+    extractor::git::new();
 }
 
 pub fn clone_repository(repo: String, conf: config::Config) {
