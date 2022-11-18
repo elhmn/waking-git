@@ -15,11 +15,20 @@ pub struct RunArgs {
 pub fn run(args: &RunArgs, conf: config::Config) {
     let repo = args.repository.clone().unwrap_or("".to_string());
 
-    let r = clone_repository(repo, conf);
-    extractor::run(r);
+    let git_repo = match clone_repository(&repo, conf) {
+        Ok(r) => {
+            println!("`{}` repository cloned successfully", repo);
+            r
+        },
+        Err(err) => {
+           return println!("Error: {}", err);
+        }
+    };
+
+    extractor::run(git_repo);
 }
 
-pub fn clone_repository(repo: String, conf: config::Config) -> Option<repo::Repo> {
+pub fn clone_repository(repo: &String, conf: config::Config) -> Result<repo::Repo, String> {
     //Create the temporary directory if it doesn't exist
     let path = path::Path::new(&conf.tmp_folder);
     if !path.exists() {
@@ -28,8 +37,7 @@ pub fn clone_repository(repo: String, conf: config::Config) -> Option<repo::Repo
                 println!("`{}` Temporary folder was created", conf.tmp_folder);
             },
             Err(err) => {
-                println!("Failed to create `{}` folder: {}", conf.tmp_folder, err);
-                return None;
+                return Err(format!("Failed to create `{}` folder: {}", conf.tmp_folder, err));
             }
         };
     }
@@ -37,11 +45,8 @@ pub fn clone_repository(repo: String, conf: config::Config) -> Option<repo::Repo
     let r = match repo::new_repo_from_url(repo.to_string(), &conf.tmp_folder) {
         Ok(r) => r,
         Err(err) => {
-            println!("Error: {}", err);
-            return None;
+            return Err(format!("Error: {}", err));
         }
     };
-
-    println!("`{}` repository cloned successfully", repo);
-    return Some(r)
+    return Ok(r)
 }

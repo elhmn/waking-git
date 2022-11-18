@@ -6,7 +6,7 @@ pub struct Data {
     pub git: git::Git,
 }
 
-pub fn run(repo: Option<repo::Repo>) -> Data {
+pub fn run(repo: repo::Repo) -> Data {
     println!("main extractor called!");
     return Data {
         git: git::new(repo),

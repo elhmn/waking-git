@@ -1,12 +1,15 @@
 use crate::repo;
 
+//Metrics contains data extracted from `git-sizer`
+pub struct Metrics {}
+
 pub struct Git {
-    pub test: String,
+    //     pub metrics: Metrics,
+    test: String,
 }
 
-pub fn new(repo: Option<repo::Repo>) -> Git {
+pub fn new(repo: repo::Repo) -> Git {
     println!("new git extractor called !");
-
     Git {
         test: "repo".to_string(),
     }

@@ -2,6 +2,10 @@ use git2::Repository;
 use url::Url;
 use std::path;
 
+pub struct Repo {
+    repo: Repository,
+}
+
 pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, String> {
     //Validate url and extract repository name
     let repo_name: String;
@@ -61,8 +65,4 @@ pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, Str
 
     let repo = Repo{repo: git_repo};
     Ok(repo)
-}
-
-pub struct Repo {
-    repo: Repository,
 }
