@@ -8,9 +8,9 @@ pub struct Git {
     test: String,
 }
 
-pub fn new(repo: &repo::Repo) -> Git {
+pub fn new(repo: &repo::Repo) -> Result<Git, String> {
     println!("new git extractor called !");
-    Git {
+    Ok(Git {
         test: "repo".to_string(),
-    }
+    })
 }
