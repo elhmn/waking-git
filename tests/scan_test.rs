@@ -88,10 +88,10 @@ fn doesnt_fetch_repository_if_already_exists() -> Result<(), Box<dyn std::error:
         .success()
         .stdout(predicate::str::contains("repository cloned successfully"));
 
-    //then fail to clone the second time around
+    //then work even though the repository already exist on disk 
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("git repository already on disk"));
+        .stdout(predicate::str::contains("repository cloned successfully"));
 
     common::teardown();
     Ok(())
