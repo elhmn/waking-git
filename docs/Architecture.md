@@ -20,9 +20,9 @@ Extractor --> |git or code structure data| Converter
 Converter --> |game entities| Player
 ```
 
-From the `Repos` we fetched and stored on disk, the `extractor` will get data about the git tree
-and the code structure. This data will then be picked up and `Converted` into a list of game entities
-such as NPCs, enemies, bosses and decors. This list of entities will be used by the `Player`
+From the **Repos** we fetched and stored on disk, the **Extractor** will get data about the git tree
+and the code structure. This data will then be picked up and **Converted** into a list of game entities
+such as NPCs, enemies, bosses and decors. This list of entities will be used by the **Player**
 to generate the game or simulated world.
 
 #### Repos
@@ -49,17 +49,17 @@ From your `git object tree` will be extracted data such as:
 In the `source code architecture` we can find these interesting artifacts:
 
 - code metrics: (we can get those from [rust_code_analysis](https://docs.rs/rust-code-analysis/latest/rust_code_analysis/index.html))
-	- CC: it calculates the code complexity examining the control flow of a program.
-	- SLOC: it counts the number of lines in a source file.
-	- PLOC: it counts the number of physical lines (instructions) contained in a source file.
-	- LLOC: it counts the number of logical lines (statements) contained in a source file.
-	- CLOC: it counts the number of comments in a source file.
-	- BLANK: it counts the number of blank lines in a source file.
-	- HALSTEAD: it is a suite that provides a series of information, such as the effort required to maintain the analyzed code, the size in bits to store the program, the difficulty to understand the code, an estimate of the number of bugs present in the codebase, and an estimate of the time needed to implement the software.
-	- MI: it is a suite that allows to evaluate the maintainability of a software.
-	- NOM: it counts the number of functions and closures in a file/trait/class.
-	- NEXITS: it counts the number of possible exit points from a method/function.
-	- NARGS: it counts the number of arguments of a function/method.
+  - CC: it calculates the code complexity examining the control flow of a program.
+  - SLOC: it counts the number of lines in a source file.
+  - PLOC: it counts the number of physical lines (instructions) contained in a source file.
+  - LLOC: it counts the number of logical lines (statements) contained in a source file.
+  - CLOC: it counts the number of comments in a source file.
+  - BLANK: it counts the number of blank lines in a source file.
+  - HALSTEAD: it is a suite that provides a series of information, such as the effort required to maintain the analyzed code, the size in bits to store the program, the difficulty to understand the code, an estimate of the number of bugs present in the codebase, and an estimate of the time needed to implement the software.
+  - MI: it is a suite that allows to evaluate the maintainability of a software.
+  - NOM: it counts the number of functions and closures in a file/trait/class.
+  - NEXITS: it counts the number of possible exit points from a method/function.
+  - NARGS: it counts the number of arguments of a function/method.
 - lines of code per file
 - file type
 - programming languages
@@ -123,6 +123,7 @@ The extractor will spit out a list of data points, that can then be stored in a 
     },
     "data_point_hash_commit": {
       "type": "git",
+      "dangling": true, //the commit is unreachable
       "git": {
           "type": "commit",
           "sha": "01da9bd182c510aea3bf57281c9b31b5d571a730",
@@ -147,11 +148,91 @@ The extractor will spit out a list of data points, that can then be stored in a 
   }
 }
 ```
+
 </details>
 
 #### Converter
 
+The **Converter** receives a set of data points and transforms them into a list of entities
+that are understandable by the **Player** such as NPCs, enemies, bosses and decors elements.
+
+<details>
+<summary><b>Example of json data</b></summary>
+
+```json
+[
+  {
+    "type": "npc",
+    "name": "main.c",
+    "entity": {
+      "type": "pedestrian",
+      "class": "villager",
+      //dialogue can be extracted from file comments or file commit messages (less sure about the former)
+      "dialogue": [
+        { "line": 10, "comment": "a comment someone left in the code" },
+        { "line": 15, "comment": "a comment found on a function" }
+      ],
+      //when the position is not specified the entity can be placed anywhere on screen
+      "position": {
+        "x": 1,
+        "y": 10
+      }
+    }
+  },
+  {
+    "type": "ennemy",
+    "name": "sha",
+    "entity": {
+      //ghosts can be generated from dangling commits or blobs
+      "type": "ghost",
+      "class": "c",
+      "position": {
+        "x": 90,
+        "y": 20
+      }
+    }
+  },
+  {
+    "type": "decor",
+    "name": "sha",
+    "entity": {
+      "type": "block",
+      "class": "a",
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  {
+    "type": "boss",
+    "name": "sha",
+    "entity": {
+      //ghosts can be generated from dangling commits or blobs
+      "type": "data-race",
+      "class": "a",
+      //dialogue can be extracted from file comments or file commit messages (less sure about the former)
+      "dialogue": [
+        { "line": 10, "comment": "a comment someone left in the code" },
+        { "line": 15, "comment": "a comment found on a function" }
+        //...more
+      ],
+      //when the position is not specified the entity can be placed anywhere on screen
+      "position": {
+        "x": 1,
+        "y": 10
+      }
+    }
+  }
+  //...more
+]
+```
+
+</details>
+
 #### Player
+
+It ingests data from the converter and generates a 2D/3D playable game/simulator.
 
 ## How to run?
 
