@@ -48,13 +48,25 @@ From your `git object tree` will be extracted data such as:
 
 In the `source code architecture` we can find these interesting artifacts:
 
+- code metrics: (we can get those from [rust_code_analysis](https://docs.rs/rust-code-analysis/latest/rust_code_analysis/index.html))
+	- CC: it calculates the code complexity examining the control flow of a program.
+	- SLOC: it counts the number of lines in a source file.
+	- PLOC: it counts the number of physical lines (instructions) contained in a source file.
+	- LLOC: it counts the number of logical lines (statements) contained in a source file.
+	- CLOC: it counts the number of comments in a source file.
+	- BLANK: it counts the number of blank lines in a source file.
+	- HALSTEAD: it is a suite that provides a series of information, such as the effort required to maintain the analyzed code, the size in bits to store the program, the difficulty to understand the code, an estimate of the number of bugs present in the codebase, and an estimate of the time needed to implement the software.
+	- MI: it is a suite that allows to evaluate the maintainability of a software.
+	- NOM: it counts the number of functions and closures in a file/trait/class.
+	- NEXITS: it counts the number of possible exit points from a method/function.
+	- NARGS: it counts the number of arguments of a function/method.
 - lines of code per file
 - file type
 - programming languages
 - code structure:
   - functions
   - classes
-  - variables ()
+  - variables
   - const
   - structs
   - interfaces/traits
