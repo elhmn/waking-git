@@ -1,5 +1,5 @@
-mod cmd;
 mod config;
+mod cmd;
 
 fn main() {
     let conf = config::Config::new();
