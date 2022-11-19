@@ -9,8 +9,9 @@ edition = "2021"
 clap = { version = "4.0.23", features = ["derive"] }
 git2 = "0.15.0"
 url = "2.3.1"
+walkdir = "2.3.2"
+rust-code-analysis = "0.0.24"
 
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "2.1"
-rust-code-analysis = "0.0.24"
