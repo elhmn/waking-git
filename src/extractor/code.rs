@@ -10,6 +10,7 @@ static ALLOWED_FILE_EXTENSIONS: [&str; 10] = [
     ".cpp", ".cs", ".css", ".go", ".html", ".java", ".js", ".py", ".rs", ".ts",
 ];
 
+#[derive(Default)]
 pub struct Code {
     string: String,
 }

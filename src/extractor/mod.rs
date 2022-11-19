@@ -3,6 +3,7 @@ pub mod git;
 
 use crate::repo;
 
+#[derive(Default)]
 pub struct Data {
     pub git: git::Git,
     pub code: code::Code,
