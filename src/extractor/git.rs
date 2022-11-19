@@ -1,5 +1,6 @@
 use crate::repo;
 use serde::Serialize;
+use git2;
 use std::collections::HashMap;
 
 #[derive(Serialize, Default)]
@@ -86,15 +87,42 @@ pub struct Git {
 }
 
 pub fn new(repo: &repo::Repo) -> Result<Git, String> {
-    let d = Git {
+    let git_data = match extrat_git_objects(&repo) {
+        Ok(d) => d,
+       Err(err) => {
+           return Err(format!("failed to extract git objects: {}", err).to_string())
+       }
+    };
+
+    println!("{}", serde_json::to_string(&git_data).unwrap()); // Debug
+    Ok(git_data)
+}
+
+pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
+    let r = &repo.repo;
+
+    //Get all repository references
+    let mut walk = r.revwalk()?;
+    let mut oid: git2::Oid;
+    for rf in repo.repo.references()? {
+        //add each reference objects in the walker
+        if let Some(ref_name) = rf.unwrap().name() {
+            oid = r.revparse_single(ref_name)?.id();
+            println!("ref_name: [{}]", ref_name);
+            walk.push(oid)?;
+        }
+    }
+
+    for w in walk {
+        println!("[{}]", w.unwrap().to_string())
+    }
+
+    Ok(Git {
         objects: HashMap::from([(
             "sha".to_string(),
             Object {
                 ..Default::default()
             })]),
         ..Default::default()
-    };
-
-    println!("{}", serde_json::to_string(&d).unwrap());
-    Ok(d)
+    })
 }

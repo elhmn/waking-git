@@ -25,7 +25,13 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         }
     };
 
-    extractor::run(git_repo);
+    let _d = match extractor::run(git_repo) {
+        Ok(d) => d,
+        Err(err) => {
+            println!("Error: failed to extract repository data: {}", err);
+            return;
+        }
+    };
 }
 
 pub fn clone_repository(repo: &String, conf: config::Config) -> Result<repo::Repo, String> {
