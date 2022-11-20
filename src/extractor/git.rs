@@ -1,6 +1,6 @@
 use crate::repo;
-use serde::Serialize;
 use git2;
+use serde::Serialize;
 use std::collections::HashMap;
 
 #[derive(Serialize, Default)]
@@ -96,9 +96,7 @@ impl Object {
 pub fn new(repo: &repo::Repo) -> Result<Git, String> {
     let git_data = match extrat_git_objects(&repo) {
         Ok(d) => d,
-       Err(err) => {
-           return Err(format!("failed to extract git objects: {}", err).to_string())
-       }
+        Err(err) => return Err(format!("failed to extract git objects: {}", err).to_string()),
     };
 
     println!("{:}", serde_json::to_string(&git_data).unwrap()); // Debug
@@ -120,7 +118,7 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
     }
 
     let mut objects: HashMap<String, Object> = HashMap::new();
-    //for each commit found from the references
+    //For each commit found from the references
     for w in walk {
         let mut obj = Object::new();
         let oid = w?.clone();
@@ -129,7 +127,7 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
         obj.kind = ObjectKind::Commit;
 
         //Get commits
-        obj.commit = Some(Commit{
+        obj.commit = Some(Commit {
             author: commit.author().to_string(),
             sha: commit.id().to_string(),
             message: commit.message().unwrap_or("").to_string(),
@@ -143,54 +141,71 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
                 ids
             })(),
         });
-
-        //add object in the objects HashMap
+        //Add the commit object in the objects HashMap
         objects.insert(oid.to_string(), obj);
 
-        //Get tree
-        commit.tree()?.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
-            let mut obj = Object::new();
-            if let Some(kind) = entry.kind() {
-                match kind {
-                    git2::ObjectType::Tree => {
-                            obj.kind = ObjectKind::Tree;
-                            obj.tree = Some(Tree{
-                                name: entry.name().unwrap_or("").to_string(),
-                                sha: entry.id().to_string(),
-                                filemode: entry.filemode(),
-                                objects: (|| -> Vec<String>{
-                                    let mut objs = vec![];
-                                    let t = r.find_tree(entry.id()).unwrap();
-                                    t.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
-                                        objs.push(entry.id().to_string());
-                                        if Some(git2::ObjectType::Tree) == entry.kind() {
-                                            return git2::TreeWalkResult::Skip;
-                                        }
-                                        git2::TreeWalkResult::Ok
-                                    }).unwrap();
-                                  objs
-                                })(),
-                            });
-                    },
-                    git2::ObjectType::Blob => {
-                            obj.kind = ObjectKind::Blob;
-                            obj.blob = Some(Blob{
-                                name: entry.name().unwrap_or("").to_string(),
-                                sha: entry.id().to_string(),
-                                filemode: entry.filemode()
-                            });
-                    },
-                    _ => (),
-                }
-            };
-
-            objects.insert(entry.id().to_string(), obj);
-            git2::TreeWalkResult::Ok
-        }).unwrap();
+        //Add every git objects found during the tree object traversal
+        add_tree_objects(&commit.tree()?, &mut objects, &r)?;
     }
 
     Ok(Git {
         objects,
         ..Default::default()
     })
+}
+
+fn add_tree_objects(
+    tree: &git2::Tree,
+    objects: &mut HashMap<String, Object>,
+    repo: &git2::Repository,
+) -> Result<(), git2::Error> {
+    tree.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
+        let mut obj = Object::new();
+
+        if let Some(kind) = entry.kind() {
+            match kind {
+                //Create and add Tree objects
+                git2::ObjectType::Tree => {
+                    obj.kind = ObjectKind::Tree;
+                    obj.tree = Some(Tree {
+                        name: entry.name().unwrap_or("").to_string(),
+                        sha: entry.id().to_string(),
+                        filemode: entry.filemode(),
+                        objects: (|| -> Vec<String> {
+                            let mut objs = vec![];
+                            let t = repo.find_tree(entry.id()).unwrap();
+
+                            //We walk down the tree to find every blob objects and add them
+                            //to our list of objects
+                            t.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
+                                objs.push(entry.id().to_string());
+                                if Some(git2::ObjectType::Tree) == entry.kind() {
+                                    return git2::TreeWalkResult::Skip;
+                                }
+                                git2::TreeWalkResult::Ok
+                            })
+                            .unwrap();
+                            objs
+                        })(),
+                    });
+                }
+
+                //Create and add Blob objects
+                git2::ObjectType::Blob => {
+                    obj.kind = ObjectKind::Blob;
+                    obj.blob = Some(Blob {
+                        name: entry.name().unwrap_or("").to_string(),
+                        sha: entry.id().to_string(),
+                        filemode: entry.filemode(),
+                    });
+                }
+                _ => (),
+            }
+        };
+
+        objects.insert(entry.id().to_string(), obj);
+        git2::TreeWalkResult::Ok
+    })?;
+
+    Ok(())
 }
