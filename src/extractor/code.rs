@@ -1,11 +1,10 @@
 use crate::repo::Repo;
+use rust_code_analysis::{
+    dump_root, metrics, read_file, JavascriptParser, ParserTrait, RustParser,
+};
 use std::path::Path;
 use walkdir::WalkDir;
 use serde::Serialize;
-
-use std::path::PathBuf;
-
-use rust_code_analysis::{dump_root, metrics, read_file, ParserTrait, RustParser};
 
 static ALLOWED_FILE_EXTENSIONS: [&str; 10] = [
     ".cpp", ".cs", ".css", ".go", ".html", ".java", ".js", ".py", ".rs", ".ts",
@@ -51,16 +50,27 @@ pub fn find_all_files_in_repo(repo_path: &Path) -> Result<String, String> {
 
         let source_code = match read_file(file.path()) {
             Ok(source_code) => source_code,
-            Err(_) => return Err(format!("Couldn't read the file {}", file.path().display())), // Add more information about the error
+            Err(_) => continue,
         };
 
-        let parser = RustParser::new(source_code, file.path(), None); // Need to select parser depending on extension
+        let file_extension = match file.path().extension() {
+            Some(file_extension) => file_extension,
+            None => continue,
+        };
 
-        // Compute metrics
-        let space = metrics(&parser, file.path()).unwrap();
-
-        // Dump all metrics
-        dump_root(&space).unwrap();
+        match file_extension.to_string_lossy().as_ref() {
+            "js" => {
+                let parser = JavascriptParser::new(source_code, file.path(), None);
+                let space = metrics(&parser, file.path()).unwrap();
+                dump_root(&space).unwrap();
+            }
+            "rs" => {
+                let parser = RustParser::new(source_code, file.path(), None);
+                let space = metrics(&parser, file.path()).unwrap();
+                dump_root(&space).unwrap();
+            }
+            _ => continue,
+        };
     }
 
     Ok("TMP".to_string())
