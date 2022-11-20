@@ -24,7 +24,7 @@ pub struct Metrics {}
 
 #[derive(Serialize, Default)]
 pub struct Blob {
-    pub permissions: String,
+    pub filemode: i32,
     pub name: String,
     pub sha: String,
 }
@@ -34,7 +34,7 @@ pub struct Tree {
     pub name: String,
     //sha the git object hash
     pub sha: String,
-    pub permissions: String,
+    pub filemode: i32,
     //objects contain a list of git objects hash
     pub objects: Vec<String>,
 }
@@ -127,6 +127,8 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
         let commit = r.find_commit(oid)?;
 
         obj.kind = ObjectKind::Commit;
+
+        //Get commits
         obj.commit = Some(Commit{
             author: commit.author().to_string(),
             sha: commit.id().to_string(),
@@ -144,6 +146,47 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
 
         //add object in the objects HashMap
         objects.insert(oid.to_string(), obj);
+
+        //Get tree
+        commit.tree()?.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
+            let mut obj = Object::new();
+            if let Some(kind) = entry.kind() {
+                match kind {
+                    git2::ObjectType::Tree => {
+                            obj.kind = ObjectKind::Tree;
+                            obj.tree = Some(Tree{
+                                name: entry.name().unwrap_or("").to_string(),
+                                sha: entry.id().to_string(),
+                                filemode: entry.filemode(),
+                                objects: (|| -> Vec<String>{
+                                    let mut objs = vec![];
+                                    let t = r.find_tree(entry.id()).unwrap();
+                                    t.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
+                                        objs.push(entry.id().to_string());
+                                        if Some(git2::ObjectType::Tree) == entry.kind() {
+                                            return git2::TreeWalkResult::Skip;
+                                        }
+                                        git2::TreeWalkResult::Ok
+                                    }).unwrap();
+                                  objs
+                                })(),
+                            });
+                    },
+                    git2::ObjectType::Blob => {
+                            obj.kind = ObjectKind::Blob;
+                            obj.blob = Some(Blob{
+                                name: entry.name().unwrap_or("").to_string(),
+                                sha: entry.id().to_string(),
+                                filemode: entry.filemode()
+                            });
+                    },
+                    _ => (),
+                }
+            };
+
+            objects.insert(entry.id().to_string(), obj);
+            git2::TreeWalkResult::Ok
+        }).unwrap();
     }
 
     Ok(Git {
