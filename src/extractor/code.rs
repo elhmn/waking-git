@@ -1,6 +1,7 @@
 use crate::repo::Repo;
 use std::path::Path;
 use walkdir::WalkDir;
+use serde::Serialize;
 
 use std::path::PathBuf;
 
@@ -10,7 +11,7 @@ static ALLOWED_FILE_EXTENSIONS: [&str; 10] = [
     ".cpp", ".cs", ".css", ".go", ".html", ".java", ".js", ".py", ".rs", ".ts",
 ];
 
-#[derive(Default)]
+#[derive(Serialize, Default)]
 pub struct Code {
     string: String,
 }

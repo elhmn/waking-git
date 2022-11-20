@@ -99,7 +99,6 @@ pub fn new(repo: &repo::Repo) -> Result<Git, String> {
         Err(err) => return Err(format!("failed to extract git objects: {}", err).to_string()),
     };
 
-    println!("{:}", serde_json::to_string(&git_data).unwrap()); // Debug
     Ok(git_data)
 }
 
