@@ -13,7 +13,7 @@ pub struct Data {
 pub fn run(repo: &repo::Repo) -> Result<Data, String> {
     return Ok(Data {
         git: git::new(&repo)?,
-//         code: code::new(&repo)?,
+        code: code::new(&repo)?,
         ..Default::default()
     })
 }
