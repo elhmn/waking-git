@@ -83,8 +83,8 @@ pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Re
         };
     }
 
-    let storaage_folder = format!("{}/{}", conf.tmp_folder, REPOS_FOLDER_NAME);
-    let r = match repo::new_repo_from_url(repo.to_string(), &storaage_folder) {
+    let storage_folder = format!("{}/{}", conf.tmp_folder, REPOS_FOLDER_NAME);
+    let r = match repo::new_repo_from_url(repo.to_string(), &storage_folder) {
         Ok(r) => r,
         Err(err) => {
             return Err(format!("Error: {}", err));
