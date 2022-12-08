@@ -36,8 +36,7 @@ pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, Str
 
             repo_owner = path_segments[1].to_string();
             repo_name = path_segments[2].to_string();
-            let host_str = p_url.host_str();
-            match host_str {
+            match p_url.host_str() {
                 Some(h) => host_name = format!("{}-", h),
                 None => host_name = "".to_string(),
             }
