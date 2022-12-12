@@ -174,7 +174,7 @@ fn add_tree_objects(
                             let mut objs = vec![];
                             let t = repo.find_tree(entry.id()).unwrap();
 
-                            //We walk down the tree to find every blob objects and add them
+                            //We walk down the tree to find every blob or tree objects and add them
                             //to our list of objects
                             t.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
                                 objs.push(entry.id().to_string());
