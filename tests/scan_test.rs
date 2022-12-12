@@ -1,4 +1,5 @@
 use assert_cmd::prelude::*;
+use std::path::PathBuf;
 use common::TMP_DIR;
 // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
@@ -67,9 +68,16 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
         .success()
         .stdout(predicate::str::contains("repository cloned successfully"));
 
-    //the ./tmp/github-com-elhmn-ckp directory should be created
-    let expected_dir = format!("{}/{}/{}", TMP_DIR, "tmp", "github-com-elhmn-ckp");
+    //the ./wake/repos/github-com-elhmn-ckp directory should be created
+    let dir = PathBuf::from(TMP_DIR);
+    let tmp_folder = format!("{}/{}", dir.to_str().unwrap_or(""), ".wake");
+    let expected_dir = format!("{}/{}/{}", tmp_folder, "repos", "github-com-elhmn-ckp");
+    println!("expected_dir: {}", expected_dir);
     assert!(std::path::Path::new(expected_dir.as_str()).exists());
+
+    //the ./tmp/scanner/github-com-elhmn-ckp/extracted.json directory should be created
+    let expected_extracted_file = format!("{}/{}/{}/{}", tmp_folder, "scanner", "github-com-elhmn-ckp", "extracted.json");
+    assert!(std::path::Path::new(expected_extracted_file.as_str()).exists());
 
     common::teardown();
     Ok(())
@@ -88,10 +96,10 @@ fn doesnt_fetch_repository_if_already_exists() -> Result<(), Box<dyn std::error:
         .success()
         .stdout(predicate::str::contains("repository cloned successfully"));
 
-    //then fail to clone the second time around
+    //then work even though the repository already exist on disk
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("git repository already on disk"));
+        .stdout(predicate::str::contains("repository cloned successfully"));
 
     common::teardown();
     Ok(())

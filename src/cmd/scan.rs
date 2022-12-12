@@ -1,9 +1,16 @@
 use crate::config;
+use crate::extractor;
+use crate::repo;
 use clap::Args;
-use git2::Repository;
 use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::Error;
 use std::path;
-use url::Url;
+
+pub const REPOS_FOLDER_NAME: &str = "repos";
+pub const SCANNER_FOLDER_NAME: &str = "scanner";
+pub const SCANNER_FILE_NAME: &str = "extracted.json";
 
 #[derive(Args, Debug)]
 pub struct RunArgs {
@@ -15,74 +22,73 @@ pub struct RunArgs {
 pub fn run(args: &RunArgs, conf: config::Config) {
     let repo = args.repository.clone().unwrap_or("".to_string());
 
-    clone_repository(repo, conf);
-}
-
-pub fn clone_repository(repo: String, conf: config::Config) {
-    //Create the temporary directory if it doesn't exist
-    let path = path::Path::new(&conf.tmp_folder);
-    if !path.exists() {
-        fs::create_dir(&conf.tmp_folder).unwrap_or_else(|err| {
-            println!("Failed to create `{}` folder: {}", conf.tmp_folder, err);
-        });
-        println!("`{}` Temporary folder was created", conf.tmp_folder);
-    }
-
-    //Validate url and extract repository name
-    let repo_name: String;
-    let repo_owner: String;
-    let mut host_name: String;
-    let url = Url::parse(&repo);
-    match url {
+    let git_repo = match clone_repository(&repo, &conf) {
+        Ok(r) => {
+            println!("`{}` repository cloned successfully", repo);
+            r
+        }
         Err(err) => {
-            println!("Failed to parse `{}` repository url: {}", repo, err);
+            return println!("Error: {}", err);
+        }
+    };
+
+    let data = match extractor::run(&git_repo) {
+        Ok(d) => d,
+        Err(err) => {
+            println!("Error: failed to extract repository data: {}", err);
             return;
         }
-        Ok(url) => {
-            //Check that the repo is a url
-            if url.scheme() != "https" {
-                println!("Failed to fetch the repository: Repository not a https url");
-                return;
-            }
+    };
 
-            //Extract repository name and owner
-            let path_segments: Vec<&str> = url.path().split("/").collect();
-            if path_segments.len() <= 2 {
-                println!("Failed to parse repository owner and name from `{}`", url);
-                return;
-            }
-
-            repo_owner = path_segments[1].to_string();
-            repo_name = path_segments[2].to_string();
-            let host_str = url.host_str();
-            match host_str {
-                Some(h) => host_name = format!("{}-", h),
-                None => host_name = "".to_string(),
-            }
-
-            host_name = host_name.replace(".", "-").to_string();
+    let dest_folder = format!("{}/{}/{}", conf.wake_path, SCANNER_FOLDER_NAME, git_repo.folder_name);
+    let dest_path = format!("{}/{}", dest_folder, SCANNER_FILE_NAME);
+    let json_data = serde_json::to_string(&data).unwrap_or("".to_string());
+    match store_scanned_data(json_data, dest_folder, dest_path.clone()) {
+        Ok(_) => (),
+        Err(err) => {
+            println!("Error: failed to extract repository data: {}", err);
+            return;
         }
+    };
+
+    println!("Scan completed checkout the `{}` generated.", dest_path);
+}
+
+pub fn store_scanned_data(data: String, dest_folder: String, dest_path: String) -> Result<(), Error> {
+    let path = path::Path::new(&dest_folder);
+    if !path.exists() {
+        fs::create_dir_all(&dest_folder)?
     }
 
-    //Clone the repository if it doesn't exist on disk
-    let repo_path = format!(
-        "{}/{}{}-{}",
-        conf.tmp_folder, host_name, repo_owner, repo_name
-    );
-    let _git_repo: Repository;
-    let path = path::Path::new(&repo_path);
+    let mut file = File::create(dest_path)?;
+    file.write_all(data.as_bytes())?;
+
+    Ok(())
+}
+
+pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Repo, String> {
+    //Create the temporary directory if it doesn't exist
+    let path = path::Path::new(&conf.wake_path);
     if !path.exists() {
-        _git_repo = match Repository::clone(repo.as_str(), &repo_path) {
-            Ok(git_repo) => git_repo,
+        match fs::create_dir(&conf.wake_path) {
+            Ok(()) => {
+                println!("`{}` Temporary folder was created", conf.wake_path);
+            }
             Err(err) => {
-                println!("Failed to clone `{}` repository: {}", repo, err);
-                return;
+                return Err(format!(
+                    "Failed to create `{}` folder: {}",
+                    conf.wake_path, err
+                ));
             }
         };
-    } else {
-        println!("`{}` git repository already on disk", repo_path);
-        return;
     }
 
-    println!("`{}` repository cloned successfully", repo_path);
+    let storage_folder = format!("{}/{}", conf.wake_path, REPOS_FOLDER_NAME);
+    let r = match repo::new_repo_from_url(repo.to_string(), &storage_folder) {
+        Ok(r) => r,
+        Err(err) => {
+            return Err(format!("Error: {}", err));
+        }
+    };
+    return Ok(r);
 }
