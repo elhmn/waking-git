@@ -1,18 +1,37 @@
 use std::path::PathBuf;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Config {
-    pub tmp_folder: String,
+    /// Path to the wake folder
+    /// here we store everything related to wake
+    pub wake_path: String,
 }
 
-const DEFAULT_TMP_REPOSITORY: &str = "tmp";
+const WAKE_FOLDER: &str = ".wake";
 
 impl Config {
     pub fn new() -> Config {
-        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let tmp_folder = format!("{}/{}", dir.to_str().unwrap_or(""), DEFAULT_TMP_REPOSITORY.to_string());
-        Config {
-            tmp_folder,
+        let dir: PathBuf;
+
+        // check if we are running the binary for integration tests
+        if std::env::var("WAKE_TEST_MODE").is_ok() {
+            dir = PathBuf::from("./");
+        } else {
+            dir = match home::home_dir() {
+                Some(d) => d,
+                None => {
+                    return Config {
+                        ..Default::default()
+                    }
+                }
+            };
         }
+
+        let wake_path = format!(
+            "{}/{}",
+            dir.to_str().unwrap_or(""),
+            WAKE_FOLDER.to_string()
+        );
+        Config { wake_path }
     }
 }

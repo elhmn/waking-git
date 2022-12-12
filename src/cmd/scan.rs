@@ -40,7 +40,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         }
     };
 
-    let dest_folder = format!("{}/{}/{}", conf.tmp_folder, SCANNER_FOLDER_NAME, git_repo.folder_name);
+    let dest_folder = format!("{}/{}/{}", conf.wake_path, SCANNER_FOLDER_NAME, git_repo.folder_name);
     let dest_path = format!("{}/{}", dest_folder, SCANNER_FILE_NAME);
     let json_data = serde_json::to_string(&data).unwrap_or("".to_string());
     match store_scanned_data(json_data, dest_folder, dest_path.clone()) {
@@ -68,22 +68,22 @@ pub fn store_scanned_data(data: String, dest_folder: String, dest_path: String) 
 
 pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Repo, String> {
     //Create the temporary directory if it doesn't exist
-    let path = path::Path::new(&conf.tmp_folder);
+    let path = path::Path::new(&conf.wake_path);
     if !path.exists() {
-        match fs::create_dir(&conf.tmp_folder) {
+        match fs::create_dir(&conf.wake_path) {
             Ok(()) => {
-                println!("`{}` Temporary folder was created", conf.tmp_folder);
+                println!("`{}` Temporary folder was created", conf.wake_path);
             }
             Err(err) => {
                 return Err(format!(
                     "Failed to create `{}` folder: {}",
-                    conf.tmp_folder, err
+                    conf.wake_path, err
                 ));
             }
         };
     }
 
-    let storage_folder = format!("{}/{}", conf.tmp_folder, REPOS_FOLDER_NAME);
+    let storage_folder = format!("{}/{}", conf.wake_path, REPOS_FOLDER_NAME);
     let r = match repo::new_repo_from_url(repo.to_string(), &storage_folder) {
         Ok(r) => r,
         Err(err) => {

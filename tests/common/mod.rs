@@ -1,5 +1,6 @@
 use std::fs;
 use std::path;
+use std::env;
 
 pub const TMP_DIR: &str = "/tmp/wake-tmp-folder";
 
@@ -10,6 +11,9 @@ pub fn move_to_tmp_folder() {
     if !path.exists() {
         fs::create_dir(TMP_DIR).unwrap();
     }
+
+    //Set test mode
+    env::set_var("WAKE_TEST_MODE", "1");
 }
 
 pub fn delete_tmp_folder() {
@@ -23,4 +27,5 @@ pub fn setup() {
 
 pub fn teardown() {
     delete_tmp_folder();
+    env::remove_var("WAKE_TEST_MODE");
 }
