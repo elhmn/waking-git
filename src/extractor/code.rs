@@ -9,6 +9,7 @@ pub struct FileData {
     pub name: String,
     pub extension: String,
     pub language: String,
+    // Contains data about the code from rust_code_analysis
     pub spaces: FuncSpace,
 }
 
@@ -78,6 +79,8 @@ pub fn extract_code_data(repo_path: &Path) -> Result<Code, String> {
         files_data: Vec::new(),
     };
 
+    // Extract code data from each file in the given repository
+    // if the file type is supported by rust_code_analysis
     for file in WalkDir::new(repo_path)
         .into_iter()
         .filter_map(|e| e.ok())
