@@ -6,10 +6,9 @@ use walkdir::WalkDir;
 
 #[derive(Serialize, Debug)]
 pub struct FileData {
-    // Do we need the path ?
     pub name: String,
     pub extension: String,
-    pub language: String, // Maybe enum ?
+    pub language: String,
     pub spaces: FuncSpace,
 }
 
@@ -86,8 +85,6 @@ pub fn extract_code_data(repo_path: &Path) -> Result<Code, String> {
     {
         let file_path = file.path();
 
-        // println!("file path: {}", file_path.display());
-
         let file_name = match file_path.file_name() {
             Some(file_name) => String::from(file_name.to_string_lossy()),
             None => continue,
@@ -120,19 +117,15 @@ pub fn extract_code_data(repo_path: &Path) -> Result<Code, String> {
             spaces,
         };
 
-        // println!("file data: {:#?}", file_data);
         code_data.files_data.push(file_data);
     }
 
-    // println!("code data: {:#?}", code_data);
     Ok(code_data)
 }
 
 pub fn new(repo: &Repo) -> Result<Code, String> {
     let repo_path = get_repo_path(repo)?;
     let code_data = extract_code_data(repo_path)?;
-
-    println!("{:}", serde_json::to_string(&code_data).unwrap()); // Debug
 
     Ok(code_data)
 }
