@@ -3,7 +3,6 @@ use rust_code_analysis::{get_function_spaces, read_file, FuncSpace, SpaceKind, L
 use serde::Serialize;
 use std::path::Path;
 use walkdir::WalkDir;
-use serde::Serialize;
 
 #[derive(Serialize, Debug)]
 pub struct FileData {
