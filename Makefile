@@ -19,12 +19,12 @@ test: install-deps
 ## lint: run linter over the entire code base
 .PHONY: lint
 lint: install-deps
-	cargo clippy -- -D warnings || echo "\nFix linting errors with \`__CARGO_FIX_YOLO=1 cargo clippy --fix\`"
+	cargo clippy -- -D warnings || (echo "\nFix linting errors with \`__CARGO_FIX_YOLO=1 cargo clippy --fix\`"; exit 1)
 
 ## fmt: check your code format
 .PHONY: fmt
 fmt: install-deps
-	cargo fmt --check || echo "\nFix formatting errors with \`cargo fmt\`"
+	cargo fmt --check || (echo "\nFix formatting errors with \`cargo fmt\`"; exit 1)
 
 ## install-hooks: install local git hooks
 .PHONY: install-hooks
