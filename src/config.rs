@@ -11,8 +11,6 @@ const WAKE_FOLDER: &str = ".wake";
 
 impl Config {
     pub fn new() -> Config {
-        
-
         // check if we are running the binary for integration tests
         let dir: PathBuf = if std::env::var("WAKE_TEST_MODE").is_ok() {
             PathBuf::from("./")
