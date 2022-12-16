@@ -24,7 +24,9 @@ fn should_work_correctly_with_dir_flag_set() -> Result<(), Box<dyn std::error::E
     common::setup();
 
     let mut cmd = Command::cargo_bin("wake")?;
-    cmd.current_dir(common::TMP_DIR).arg("play").arg("-d a_directory");
+    cmd.current_dir(common::TMP_DIR)
+        .arg("play")
+        .arg("-d a_directory");
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("Play run command invoked"));

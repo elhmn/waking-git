@@ -1,7 +1,7 @@
-mod config;
 mod cmd;
-mod repo;
+mod config;
 mod extractor;
+mod repo;
 
 fn main() {
     let conf = config::Config::new();

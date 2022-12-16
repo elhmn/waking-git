@@ -27,11 +27,7 @@ impl Config {
             };
         }
 
-        let wake_path = format!(
-            "{}/{}",
-            dir.to_str().unwrap_or(""),
-            WAKE_FOLDER.to_string()
-        );
+        let wake_path = format!("{}/{}", dir.to_str().unwrap_or(""), WAKE_FOLDER.to_string());
         Config { wake_path }
     }
 }

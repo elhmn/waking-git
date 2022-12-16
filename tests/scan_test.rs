@@ -1,6 +1,6 @@
 use assert_cmd::prelude::*;
-use std::path::PathBuf;
 use common::TMP_DIR;
+use std::path::PathBuf;
 // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use std::process::Command; // Run programs
@@ -76,7 +76,10 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
     assert!(std::path::Path::new(expected_dir.as_str()).exists());
 
     //the ./tmp/scanner/github-com-elhmn-ckp/extracted.json directory should be created
-    let expected_extracted_file = format!("{}/{}/{}/{}", tmp_folder, "scanner", "github-com-elhmn-ckp", "extracted.json");
+    let expected_extracted_file = format!(
+        "{}/{}/{}/{}",
+        tmp_folder, "scanner", "github-com-elhmn-ckp", "extracted.json"
+    );
     assert!(std::path::Path::new(expected_extracted_file.as_str()).exists());
 
     common::teardown();

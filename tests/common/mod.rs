@@ -1,6 +1,6 @@
+use std::env;
 use std::fs;
 use std::path;
-use std::env;
 
 pub const TMP_DIR: &str = "/tmp/wake-tmp-folder";
 

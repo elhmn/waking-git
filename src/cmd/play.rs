@@ -7,7 +7,7 @@ pub struct RunArgs {
     /// the world.
     /// example:
     /// `wake play -d ./tmp/github-com-elhmn-ckp`
-    #[arg(short, long, value_name="DIRECTORY")]
+    #[arg(short, long, value_name = "DIRECTORY")]
     dir: Option<String>,
 }
 
