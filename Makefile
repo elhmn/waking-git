@@ -19,7 +19,7 @@ test: install-deps
 ## lint: run linter over the entire code base
 .PHONY: lint
 lint: install-deps
-	cargo clippy -- -D warnings
+	cargo clippy -- -D warnings || echo "\nFix linting errors with \`__CARGO_FIX_YOLO=1 cargo clippy --fix\`"
 
 ## fmt: check your code format
 .PHONY: fmt

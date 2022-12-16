@@ -11,23 +11,23 @@ const WAKE_FOLDER: &str = ".wake";
 
 impl Config {
     pub fn new() -> Config {
-        let dir: PathBuf;
+        
 
         // check if we are running the binary for integration tests
-        if std::env::var("WAKE_TEST_MODE").is_ok() {
-            dir = PathBuf::from("./");
+        let dir: PathBuf = if std::env::var("WAKE_TEST_MODE").is_ok() {
+            PathBuf::from("./")
         } else {
-            dir = match home::home_dir() {
+            match home::home_dir() {
                 Some(d) => d,
                 None => {
                     return Config {
                         ..Default::default()
                     }
                 }
-            };
-        }
+            }
+        };
 
-        let wake_path = format!("{}/{}", dir.to_str().unwrap_or(""), WAKE_FOLDER.to_string());
+        let wake_path = format!("{}/{}", dir.to_str().unwrap_or(""), WAKE_FOLDER);
         Config { wake_path }
     }
 }

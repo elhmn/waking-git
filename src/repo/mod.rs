@@ -15,22 +15,20 @@ pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, Str
     let p_url = Url::parse(&url);
     match p_url {
         Err(err) => {
-            return Err(format!("Failed to parse `{}` repository url: {}", url, err).to_owned());
+            return Err(format!("Failed to parse `{}` repository url: {}", url, err));
         }
         Ok(p_url) => {
             //Check that the repo is a url
             if p_url.scheme() != "https" {
-                return Err(format!(
-                    "Failed to fetch the repository: Repository not a https url"
-                ));
+                return Err("Failed to fetch the repository: Repository not a https url".to_string());
             }
 
             //Extract repository name and owner
-            let path_segments: Vec<&str> = p_url.path().split("/").collect();
+            let path_segments: Vec<&str> = p_url.path().split('/').collect();
             if path_segments.len() <= 2 {
                 return Err(
                     format!("Failed to parse repository owner and name from `{}`", p_url)
-                        .to_owned(),
+                        ,
                 );
             }
 
@@ -41,30 +39,30 @@ pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, Str
                 None => host_name = "".to_string(),
             }
 
-            host_name = host_name.replace(".", "-").to_string();
+            host_name = host_name.replace('.', "-");
         }
     }
 
     //Clone the repository if it doesn't exist on disk
-    let git_repo: Repository;
+    
     let folder_name = format!("{}{}-{}", host_name, repo_owner, repo_name);
     let dest_path = format!("{}/{}", repo_storage, folder_name);
     let path = path::Path::new(&dest_path);
-    if !path.exists() {
-        git_repo = match Repository::clone(url.as_str(), &dest_path) {
+    let git_repo: Repository = if !path.exists() {
+        match Repository::clone(url.as_str(), &dest_path) {
             Ok(git_repo) => git_repo,
             Err(err) => {
-                return Err(format!("Failed to clone `{}` repository: {}", url, err).to_owned());
+                return Err(format!("Failed to clone `{}` repository: {}", url, err));
             }
-        };
+        }
     } else {
-        git_repo = match Repository::open(dest_path) {
+        match Repository::open(dest_path) {
             Ok(git_repo) => git_repo,
             Err(err) => {
-                return Err(format!("Failed to clone `{}` repository: {}", url, err).to_owned());
+                return Err(format!("Failed to clone `{}` repository: {}", url, err));
             }
-        };
-    }
+        }
+    };
 
     let repo = Repo {
         repo: git_repo,

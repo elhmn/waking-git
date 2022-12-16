@@ -12,9 +12,9 @@ pub struct RunArgs {
 }
 
 pub fn run(args: &RunArgs, _conf: config::Config) {
-    let dir = args.dir.clone().unwrap_or("".to_string());
+    let dir = args.dir.clone().unwrap_or_default();
     println!("Play run command invoked");
-    if dir != "" {
+    if !dir.is_empty() {
         println!("Called with {}", dir);
     }
 }

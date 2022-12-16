@@ -20,7 +20,7 @@ pub struct RunArgs {
 }
 
 pub fn run(args: &RunArgs, conf: config::Config) {
-    let repo = args.repository.clone().unwrap_or("".to_string());
+    let repo = args.repository.clone().unwrap_or_default();
 
     let git_repo = match clone_repository(&repo, &conf) {
         Ok(r) => {
@@ -45,7 +45,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         conf.wake_path, SCANNER_FOLDER_NAME, git_repo.folder_name
     );
     let dest_path = format!("{}/{}", dest_folder, SCANNER_FILE_NAME);
-    let json_data = serde_json::to_string(&data).unwrap_or("".to_string());
+    let json_data = serde_json::to_string(&data).unwrap_or_else(|_| "".to_string());
     match store_scanned_data(json_data, dest_folder, dest_path.clone()) {
         Ok(_) => (),
         Err(err) => {
@@ -97,5 +97,5 @@ pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Re
             return Err(format!("Error: {}", err));
         }
     };
-    return Ok(r);
+    Ok(r)
 }
