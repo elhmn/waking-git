@@ -8,8 +8,6 @@ pub enum ObjectKind {
     Blob,
     Tree,
     Commit,
-    Tags,
-    Ref,
     #[default]
     Unknown,
 }
@@ -94,9 +92,9 @@ impl Object {
 }
 
 pub fn new(repo: &repo::Repo) -> Result<Git, String> {
-    let git_data = match extrat_git_objects(&repo) {
+    let git_data = match extrat_git_objects(repo) {
         Ok(d) => d,
-        Err(err) => return Err(format!("failed to extract git objects: {}", err).to_string()),
+        Err(err) => return Err(format!("failed to extract git objects: {}", err)),
     };
 
     Ok(git_data)
@@ -120,7 +118,7 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
     //For each commit found from the references
     for w in walk {
         let mut obj = Object::new();
-        let oid = w?.clone();
+        let oid = w?;
         let commit = r.find_commit(oid)?;
 
         obj.kind = ObjectKind::Commit;
@@ -132,19 +130,19 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
             message: commit.message().unwrap_or("").to_string(),
             tree: commit.tree()?.id().to_string(),
             committer: commit.committer().to_string(),
-            parents: (|| -> Vec<String> {
+            parents: {
                 let mut ids = vec![];
                 for id in commit.parent_ids() {
                     ids.push(id.to_string());
                 }
                 ids
-            })(),
+            },
         });
         //Add the commit object in the objects HashMap
         objects.insert(oid.to_string(), obj);
 
         //Add every git objects found during the tree object traversal
-        add_tree_objects(&commit.tree()?, &mut objects, &r)?;
+        add_tree_objects(&commit.tree()?, &mut objects, r)?;
     }
 
     Ok(Git {

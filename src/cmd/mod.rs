@@ -1,8 +1,8 @@
-pub mod scan;
 pub mod play;
+pub mod scan;
 
-use clap::{Parser, Subcommand};
 use crate::config;
+use clap::{Parser, Subcommand};
 
 #[derive(Subcommand, Debug)]
 enum Commands {

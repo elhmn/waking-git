@@ -7,14 +7,14 @@ pub struct RunArgs {
     /// the world.
     /// example:
     /// `wake play -d ./tmp/github-com-elhmn-ckp`
-    #[arg(short, long, value_name="DIRECTORY")]
+    #[arg(short, long, value_name = "DIRECTORY")]
     dir: Option<String>,
 }
 
 pub fn run(args: &RunArgs, _conf: config::Config) {
-    let dir = args.dir.clone().unwrap_or("".to_string());
+    let dir = args.dir.clone().unwrap_or_default();
     println!("Play run command invoked");
-    if dir != "" {
+    if !dir.is_empty() {
         println!("Called with {}", dir);
     }
 }
