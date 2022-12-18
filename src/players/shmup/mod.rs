@@ -1,4 +1,6 @@
+pub mod components;
 pub mod plugin;
+pub mod systems;
 
 use bevy::{app::PluginGroupBuilder, prelude::*};
 
