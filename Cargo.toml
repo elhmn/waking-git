@@ -25,6 +25,7 @@ home = "0.5.4"
 # and https://docs.rs/bevy_dylib/latest/bevy_dylib/#the-recommended-way
 bevy = { version = "0.9.0" }
 bevy-inspector-egui = "0.15.0"
+rand = "0.8.5"
 
 [dev-dependencies]
 assert_cmd = "2.0"
