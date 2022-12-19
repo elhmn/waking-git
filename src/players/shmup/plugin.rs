@@ -1,5 +1,6 @@
 use super::components::cell;
 use super::components::patterns;
+use super::debug;
 use super::systems::movements;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
@@ -10,6 +11,7 @@ const BACKGROUND_COLOR: Color = Color::rgb(1., 1., 1.);
 impl Plugin for ShmupPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ClearColor(BACKGROUND_COLOR))
+            .add_plugin(debug::DebugPlugin)
             .add_startup_system(setup)
             .add_system(movements::movement_pattern_1)
             .add_system(movements::movement_pattern_2)
