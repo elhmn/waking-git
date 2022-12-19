@@ -8,6 +8,25 @@ of your code (Intefaces, Classes, functions etc...) can be used to create living
 Those creatures can be mobs/enemies depending on how well their structure match well known
 code smell, in the programming language the code is written on.
 
+## Development
+The project is build using the `rust` programming language, and uses git as a strong dependency.
+
+### Dependencies
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Git](https://git-scm.com/downloads)
+- [Docker](https://docs.docker.com/engine/install/)
+- [GNU make](https://www.gnu.org/software/make/)
+
+### Architecture
+
+Please read the draft of the [architecture](https://github.com/elhmn/waking-git/blob/main/docs/Architecture.md).
+
+### How to run?
+
+In order to run `waking-git` you need to [install](https://www.rust-lang.org/tools/install) the rust tool chain.
+
+Then run `cargo run`
+
 ## Resources
 
 Building this project require to know what is the of state code scanning and data visualisation researches.
@@ -34,22 +53,3 @@ Here is a list of research papers and code visualisers that will be useful to wo
 	- [10](https://opus-htw-aalen.bsz-bw.de/frontdoor/deliver/index/docId/658/file/ICCSE16-SEE.pdf)
 	- [11](https://blog.ndepend.com/visualize-code-with-software-architecture-diagrams/)
 	- [12](https://www.researchgate.net/publication/347700460_rust-code-analysis_A_Rust_library_to_analyze_and_extract_maintainability_information_from_source_codes)
-
-## Development
-The project is build using the `rust` programming language, and uses git as a strong dependency.
-
-### Dependencies
-- [Rust](https://www.rust-lang.org/tools/install)
-- [Git](https://git-scm.com/downloads)
-- [Docker](https://docs.docker.com/engine/install/)
-- [GNU make](https://www.gnu.org/software/make/)
-
-### Architecture
-
-Please read the draft of the [architecture](https://github.com/elhmn/waking-git/blob/main/docs/Architecture.md).
-
-### How to run?
-
-In order to run `waking-git` you need to [install](https://www.rust-lang.org/tools/install) the rust tool chain.
-
-Then run `cargo run`
