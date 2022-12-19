@@ -21,11 +21,71 @@ The project is build using the `rust` programming language, and uses git as a st
 
 Please read the draft of the [architecture](https://github.com/elhmn/waking-git/blob/main/docs/Architecture.md).
 
-### How to run?
+### How to run ?
 
 In order to run `waking-git` you need to [install](https://www.rust-lang.org/tools/install) the rust tool chain.
 
-Then run `cargo run`
+**How to scan a repository ?**
+
+```console
+$ cargo run scan https://github.com/elhmn/ckp
+```
+
+Or use `bevy` dynamic library
+```console
+$ cargo run --features bevy/dynamic scan https://github.com/elhmn/ckp
+```
+
+**How to play ?** ***(To edit as the project evolve)***
+
+```console
+$ cargo run play
+```
+
+Or use the bevy dynamic library
+```console
+$ cargo run --features bevy/dynamic play
+```
+
+### How to test?
+
+Run the entire test suite using,
+
+```console
+$ make test
+```
+
+Check linting
+```console
+$ make lint
+```
+
+Check code format
+```console
+$ make fmt
+```
+
+Setup git local hooks
+
+```console
+make install-hooks
+```
+
+### More
+
+You can run `make` OR `make help` to find out more commands
+```console
+$ make
+ You can build `wake` using `make build`
+ or run it using `cargo run scan https://github.com/elhmn/ckp`
+
+ Choose a command...
+  build           build application binary.
+  test            run tests
+  lint            run linter over the entire code base
+  fmt             check your code format
+  install-hooks   install local git hooks
+```
 
 ## Resources
 
