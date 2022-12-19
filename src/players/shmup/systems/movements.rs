@@ -7,7 +7,6 @@ pub fn movement_pattern_1(
 ) {
     for (p, mut t) in query.iter_mut() {
         t.translation.x += 100. * p.speed * time.delta_seconds();
-        println!("movement_pattern_1: [{:#?}]: [{:#?}]", p, t);
     }
 }
 
@@ -17,7 +16,6 @@ pub fn movement_pattern_2(
 ) {
     for (p, mut t) in query.iter_mut() {
         t.translation.x -= 100. * p.speed * time.delta_seconds();
-        println!("movement_pattern_2: [{:#?}]: [{:#?}]", p, t);
     }
 }
 
@@ -27,6 +25,5 @@ pub fn movement_pattern_3(
 ) {
     for (p, mut t) in query.iter_mut() {
         t.translation.y += 100. * p.speed * time.delta_seconds();
-        println!("movement_pattern_2: [{:#?}]: [{:#?}]", p, t);
     }
 }
