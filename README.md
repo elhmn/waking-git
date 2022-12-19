@@ -9,7 +9,7 @@ Those creatures can be mobs/enemies depending on how well their structure match 
 code smell, in the programming language the code is written on.
 
 ## Development
-The project is build using the `rust` programming language, and uses git as a strong dependency.
+The project is built in `rust`, and uses git as a strong dependency.
 
 ### Dependencies
 - [Rust](https://www.rust-lang.org/tools/install)
@@ -31,7 +31,7 @@ In order to run `waking-git` you need to [install](https://www.rust-lang.org/too
 $ cargo run scan https://github.com/elhmn/ckp
 ```
 
-Or use `bevy` dynamic library
+Or use the `bevy` dynamic library
 ```console
 $ cargo run --features bevy/dynamic scan https://github.com/elhmn/ckp
 ```
@@ -42,15 +42,14 @@ $ cargo run --features bevy/dynamic scan https://github.com/elhmn/ckp
 $ cargo run play
 ```
 
-Or use the bevy dynamic library
+Or use the `bevy` dynamic library
 ```console
 $ cargo run --features bevy/dynamic play
 ```
 
-### How to test?
+### How to test ?
 
 Run the entire test suite using,
-
 ```console
 $ make test
 ```
@@ -66,9 +65,8 @@ $ make fmt
 ```
 
 Setup git local hooks
-
 ```console
-make install-hooks
+$ make install-hooks
 ```
 
 ### More
