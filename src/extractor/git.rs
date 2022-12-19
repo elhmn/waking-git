@@ -102,17 +102,16 @@ pub fn new(repo: &repo::Repo) -> Result<Git, String> {
 
 pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
     let r = &repo.repo;
-    let mut walk = r.revwalk()?;
 
-    //Get all repository references
-    let mut oid: git2::Oid;
-    for rf in repo.repo.references()? {
-        //add each reference objects in the walker
-        if let Some(ref_name) = rf.unwrap().name() {
-            oid = r.revparse_single(ref_name)?.id();
-            walk.push(oid)?;
-        }
-    }
+    //Get default reference oid
+    //First we check for `master` and if `master` does not exist we fallback to `main`
+    let oid = match repo.repo.refname_to_id("refs/heads/master") {
+        Ok(oid) => oid,
+        Err(_) => repo.repo.refname_to_id("refs/heads/main")?,
+    };
+
+    let mut walk = r.revwalk()?;
+    walk.push(oid)?;
 
     let mut objects: HashMap<String, Object> = HashMap::new();
     //For each commit found from the references
