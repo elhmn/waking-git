@@ -12,6 +12,10 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - name: install-dependencies
+        run: |
+          sudo apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev
+          sudo apt-get install libwayland-dev libxkbcommon-dev
       - name: "test"
         run: |
           make test

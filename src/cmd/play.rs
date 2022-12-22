@@ -1,4 +1,5 @@
 use crate::config;
+use crate::players::shmup;
 use clap::Args;
 
 #[derive(Args, Debug)]
@@ -14,7 +15,16 @@ pub struct RunArgs {
 pub fn run(args: &RunArgs, _conf: config::Config) {
     let dir = args.dir.clone().unwrap_or_default();
     println!("Play run command invoked");
+
     if !dir.is_empty() {
         println!("Called with {}", dir);
     }
+
+    // check if we are running the binary for integration tests
+    // because we don't want to open a window while running tests
+    if std::env::var("WAKE_TEST_MODE").is_ok() {
+        return;
+    }
+
+    shmup::run();
 }
