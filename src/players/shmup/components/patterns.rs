@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use rand::prelude::*;
 
-// static mut RNG :ThreadRng = rand::thread_rng();
-
 /// Pattern1 defines a movement pattern
 #[derive(Component, Debug)]
 // We could define better names
