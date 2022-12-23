@@ -1,4 +1,5 @@
 use crate::config;
+use crate::converters;
 use crate::extractor;
 use crate::repo;
 use clap::Args;
@@ -10,7 +11,8 @@ use std::path;
 
 pub const REPOS_FOLDER_NAME: &str = "repos";
 pub const SCANNER_FOLDER_NAME: &str = "scanner";
-pub const SCANNER_FILE_NAME: &str = "extracted.json";
+pub const EXTRACTOR_FILE_NAME: &str = "extracted.json";
+pub const CONVERTER_FILE_NAME_PREFIX: &str = "converted.json";
 
 #[derive(Args, Debug)]
 pub struct RunArgs {
@@ -32,7 +34,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         }
     };
 
-    let data = match extractor::run(&git_repo) {
+    let extracted_data = match extract_data(&conf, &git_repo) {
         Ok(d) => d,
         Err(err) => {
             println!("Error: failed to extract repository data: {}", err);
@@ -40,37 +42,71 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         }
     };
 
+    let conv = converters::shmup::new();
+    let _converted_data = match convert_data(&conf, &git_repo, extracted_data, &conv) {
+        Ok(d) => d,
+        Err(err) => {
+            println!("Error: failed to convert extracted data: {}", err);
+            return;
+        }
+    };
+}
+
+pub fn extract_data(
+    conf: &config::Config,
+    git_repo: &repo::Repo,
+) -> Result<extractor::Data, String> {
+    let data = extractor::run(git_repo)?;
     let dest_folder = format!(
         "{}/{}/{}",
         conf.wake_path, SCANNER_FOLDER_NAME, git_repo.folder_name
     );
-    let dest_path = format!("{}/{}", dest_folder, SCANNER_FILE_NAME);
+    let dest_path = format!("{}/{}", dest_folder, EXTRACTOR_FILE_NAME);
     let json_data = serde_json::to_string(&data).unwrap_or_else(|_| "".to_string());
-    match store_scanned_data(json_data, dest_folder, dest_path.clone()) {
+    match store_json_data(json_data, dest_folder, dest_path.clone()) {
         Ok(_) => (),
         Err(err) => {
-            println!("Error: failed to extract repository data: {}", err);
-            return;
+            return Err(format!("Error: failed to extract repository data: {}", err));
         }
     };
 
-    println!("Scan completed checkout the `{}` generated.", dest_path);
+    println!(
+        "Extraction completed checkout the `{}` generated.",
+        dest_path
+    );
+    Ok(data)
 }
 
-pub fn store_scanned_data(
-    data: String,
-    dest_folder: String,
-    dest_path: String,
-) -> Result<(), Error> {
-    let path = path::Path::new(&dest_folder);
-    if !path.exists() {
-        fs::create_dir_all(&dest_folder)?
-    }
+pub fn convert_data<Data: serde::Serialize>(
+    conf: &config::Config,
+    git_repo: &repo::Repo,
+    extracted_data: extractor::Data,
+    converter: &impl converters::Converter<Data>,
+) -> Result<Data, String> {
+    let data = converter.run(&extracted_data)?;
+    let dest_folder = format!(
+        "{}/{}/{}",
+        conf.wake_path, SCANNER_FOLDER_NAME, git_repo.folder_name
+    );
+    let dest_path = format!(
+        "{}/{}-{}",
+        dest_folder,
+        converter.name(),
+        CONVERTER_FILE_NAME_PREFIX
+    );
+    let json_data = serde_json::to_string(&data).unwrap_or_else(|_| "".to_string());
+    match store_json_data(json_data, dest_folder, dest_path.clone()) {
+        Ok(_) => (),
+        Err(err) => {
+            return Err(format!("Error: failed to extract repository data: {}", err));
+        }
+    };
 
-    let mut file = File::create(dest_path)?;
-    file.write_all(data.as_bytes())?;
-
-    Ok(())
+    println!(
+        "Convertion completed checkout the `{}` generated.",
+        dest_path
+    );
+    Ok(data)
 }
 
 pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Repo, String> {
@@ -98,4 +134,16 @@ pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Re
         }
     };
     Ok(r)
+}
+
+pub fn store_json_data(data: String, dest_folder: String, dest_path: String) -> Result<(), Error> {
+    let path = path::Path::new(&dest_folder);
+    if !path.exists() {
+        fs::create_dir_all(&dest_folder)?
+    }
+
+    let mut file = File::create(dest_path)?;
+    file.write_all(data.as_bytes())?;
+
+    Ok(())
 }
