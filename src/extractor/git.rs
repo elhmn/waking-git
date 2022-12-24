@@ -1,5 +1,5 @@
 use crate::repo;
-use git2;
+use git2::{self, Repository, TreeEntry};
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -164,35 +164,28 @@ fn add_tree_objects(
     objects: &mut HashMap<String, Object>,
     repo: &git2::Repository,
 ) -> Result<(), git2::Error> {
+    //Create the root tree object
+    {
+        let mut obj = Object::new();
+        obj.kind = ObjectKind::Tree;
+        obj.tree = Some(Tree {
+            name: "".to_string(),
+            sha: tree.id().to_string(),
+            filemode: 0,
+            objects: tree.iter().map(|t| t.id().to_string()).collect(),
+        });
+
+        objects.insert(tree.id().to_string(), obj);
+    }
+
     tree.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
         let mut obj = Object::new();
-
         if let Some(kind) = entry.kind() {
             match kind {
                 //Create and add Tree objects
                 git2::ObjectType::Tree => {
                     obj.kind = ObjectKind::Tree;
-                    obj.tree = Some(Tree {
-                        name: entry.name().unwrap_or("").to_string(),
-                        sha: entry.id().to_string(),
-                        filemode: entry.filemode(),
-                        objects: (|| -> Vec<String> {
-                            let mut objs = vec![];
-                            let t = repo.find_tree(entry.id()).unwrap();
-
-                            //We walk down the tree to find every blob or tree objects and add them
-                            //to our list of objects
-                            t.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
-                                objs.push(entry.id().to_string());
-                                if Some(git2::ObjectType::Tree) == entry.kind() {
-                                    return git2::TreeWalkResult::Skip;
-                                }
-                                git2::TreeWalkResult::Ok
-                            })
-                            .unwrap();
-                            objs
-                        })(),
-                    });
+                    obj.tree = Some(build_tree_object(entry, repo));
                 }
 
                 //Create and add Blob objects
@@ -213,4 +206,28 @@ fn add_tree_objects(
     })?;
 
     Ok(())
+}
+
+fn build_tree_object<'tree>(entry: &TreeEntry<'tree>, repo: &Repository) -> Tree {
+    Tree {
+        name: entry.name().unwrap_or("").to_string(),
+        sha: entry.id().to_string(),
+        filemode: entry.filemode(),
+        objects: (|| -> Vec<String> {
+            let mut objs = vec![];
+            let t = repo.find_tree(entry.id()).unwrap();
+
+            //We walk down the tree to find every blob or tree objects and add them
+            //to our list of objects
+            t.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
+                objs.push(entry.id().to_string());
+                if Some(git2::ObjectType::Tree) == entry.kind() {
+                    return git2::TreeWalkResult::Skip;
+                }
+                git2::TreeWalkResult::Ok
+            })
+            .unwrap();
+            objs
+        })(),
+    }
 }
