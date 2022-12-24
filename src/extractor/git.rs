@@ -80,6 +80,10 @@ pub struct Object {
 pub struct Git {
     pub metrics: Metrics,
     pub objects: HashMap<String, Object>,
+    //the ref_target is the ref used to traverse git the
+    //repository tree.
+    // (String, String) <=> (ref, oid)
+    pub ref_target: (String, String),
     pub refs: HashMap<String, String>,
 }
 
@@ -103,11 +107,15 @@ pub fn new(repo: &repo::Repo) -> Result<Git, String> {
 pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
     let r = &repo.repo;
 
+    let mut ref_name = "refs/heads/master";
     //Get default reference oid
     //First we check for `master` and if `master` does not exist we fallback to `main`
-    let oid = match repo.repo.refname_to_id("refs/heads/master") {
+    let oid = match repo.repo.refname_to_id(ref_name) {
         Ok(oid) => oid,
-        Err(_) => repo.repo.refname_to_id("refs/heads/main")?,
+        Err(_) => {
+            ref_name = "refs/heads/main";
+            repo.repo.refname_to_id(ref_name)?
+        }
     };
 
     let mut walk = r.revwalk()?;
@@ -146,6 +154,7 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
 
     Ok(Git {
         objects,
+        ref_target: (ref_name.to_string(), format!("{}", oid)),
         ..Default::default()
     })
 }
