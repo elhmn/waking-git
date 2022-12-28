@@ -24,12 +24,22 @@ pub struct Metrics {}
 pub struct Blob {
     pub filemode: i32,
     pub name: String,
+    //path is the path to the file/directiry relative
+    //to the root tree
+    //this is used to map git data with code data
+    //that hashed path is used as a key to a code entry
+    pub path: String,
     pub sha: String,
 }
 
 #[derive(Serialize, Default)]
 pub struct Tree {
     pub name: String,
+    //path is the path to the file/directiry relative
+    //to the root tree.
+    //this is used to map git data with code data
+    //that hashed path is used as a key to a code entry
+    pub path: String,
     //sha the git object hash
     pub sha: String,
     pub filemode: i32,
@@ -170,6 +180,7 @@ fn add_tree_objects(
         obj.kind = ObjectKind::Tree;
         obj.tree = Some(Tree {
             name: "".to_string(),
+            path: "".to_string(),
             sha: tree.id().to_string(),
             filemode: 0,
             objects: tree.iter().map(|t| t.id().to_string()).collect(),
@@ -178,14 +189,14 @@ fn add_tree_objects(
         objects.insert(tree.id().to_string(), obj);
     }
 
-    tree.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
+    tree.walk(git2::TreeWalkMode::PreOrder, |path, entry| {
         let mut obj = Object::new();
         if let Some(kind) = entry.kind() {
             match kind {
                 //Create and add Tree objects
                 git2::ObjectType::Tree => {
                     obj.kind = ObjectKind::Tree;
-                    obj.tree = Some(build_tree_object(entry, repo));
+                    obj.tree = Some(build_tree_object(path.to_string(), entry, repo));
                 }
 
                 //Create and add Blob objects
@@ -193,6 +204,7 @@ fn add_tree_objects(
                     obj.kind = ObjectKind::Blob;
                     obj.blob = Some(Blob {
                         name: entry.name().unwrap_or("").to_string(),
+                        path: path.to_string(),
                         sha: entry.id().to_string(),
                         filemode: entry.filemode(),
                     });
@@ -208,10 +220,11 @@ fn add_tree_objects(
     Ok(())
 }
 
-fn build_tree_object<'tree>(entry: &TreeEntry<'tree>, repo: &Repository) -> Tree {
+fn build_tree_object<'tree>(path: String, entry: &TreeEntry<'tree>, repo: &Repository) -> Tree {
     Tree {
         name: entry.name().unwrap_or("").to_string(),
         sha: entry.id().to_string(),
+        path,
         filemode: entry.filemode(),
         objects: (|| -> Vec<String> {
             let mut objs = vec![];

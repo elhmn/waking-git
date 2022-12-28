@@ -81,7 +81,9 @@ fn add_scenes(
             // Create entities
             for oid in &tree.objects {
                 if let Some(blob) = &objs[oid].blob {
-                    scene.entities.insert(oid.clone(), blob_to_entity(blob));
+                    let mut entity = blob_to_entity(blob);
+                    entity.scene_id = oid.clone();
+                    scene.entities.insert(oid.clone(), entity);
                 } else {
                     scene.sub_scenes.push(oid.clone());
                 }
@@ -96,8 +98,14 @@ fn add_scenes(
     }
 }
 
-fn blob_to_entity(_blob: &extractor::git::Blob) -> Entity {
+fn blob_to_entity(blob: &extractor::git::Blob) -> Entity {
     Entity {
+        id: blob.sha.clone(),
+        name: blob.name.clone(),
+        color: "a color".to_string(),
+        kind: "kind".to_string(),
+        speed: 0.2,
+        hp: 1.,
         ..Default::default()
     }
 }
