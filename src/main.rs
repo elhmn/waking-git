@@ -2,6 +2,7 @@ mod cmd;
 mod config;
 mod converters;
 mod extractor;
+mod hash;
 mod players;
 mod repo;
 

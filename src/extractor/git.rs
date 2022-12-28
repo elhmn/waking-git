@@ -1,3 +1,4 @@
+use crate::hash;
 use crate::repo;
 use git2::{self, Repository, TreeEntry};
 use serde::Serialize;
@@ -29,6 +30,9 @@ pub struct Blob {
     //this is used to map git data with code data
     //that hashed path is used as a key to a code entry
     pub path: String,
+    //path_sha is the sha 256 of the path
+    //this is used to optimize code data lookup
+    pub path_sha: String,
     pub sha: String,
 }
 
@@ -40,6 +44,9 @@ pub struct Tree {
     //this is used to map git data with code data
     //that hashed path is used as a key to a code entry
     pub path: String,
+    //path_sha is the sha 256 of the path
+    //this is used to optimize code data lookup
+    pub path_sha: String,
     //sha the git object hash
     pub sha: String,
     pub filemode: i32,
@@ -181,6 +188,7 @@ fn add_tree_objects(
         obj.tree = Some(Tree {
             name: "".to_string(),
             path: "".to_string(),
+            path_sha: hash::new("".to_string()),
             sha: tree.id().to_string(),
             filemode: 0,
             objects: tree.iter().map(|t| t.id().to_string()).collect(),
@@ -202,10 +210,12 @@ fn add_tree_objects(
                 //Create and add Blob objects
                 git2::ObjectType::Blob => {
                     let name = entry.name().unwrap_or("").to_string();
+                    let path = get_relative_path(path.to_string(), name.clone());
                     obj.kind = ObjectKind::Blob;
                     obj.blob = Some(Blob {
-                        name: name.clone(),
-                        path: get_relative_path(path.to_string(), name),
+                        name,
+                        path: path.clone(),
+                        path_sha: hash::new(path),
                         sha: entry.id().to_string(),
                         filemode: entry.filemode(),
                     });
@@ -223,10 +233,12 @@ fn add_tree_objects(
 
 fn build_tree_object<'tree>(path: String, entry: &TreeEntry<'tree>, repo: &Repository) -> Tree {
     let name = entry.name().unwrap_or("").to_string();
+    let path = get_relative_path(path, name.clone());
     Tree {
-        name: name.clone(),
+        name,
         sha: entry.id().to_string(),
-        path: get_relative_path(path.to_string(), name),
+        path: path.clone(),
+        path_sha: hash::new(path),
         filemode: entry.filemode(),
         objects: (|| -> Vec<String> {
             let mut objs = vec![];

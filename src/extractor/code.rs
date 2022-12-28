@@ -1,3 +1,4 @@
+use crate::hash;
 use crate::repo::Repo;
 use rust_code_analysis::{get_function_spaces, read_file, FuncSpace, SpaceKind, LANG};
 use serde::Serialize;
@@ -131,7 +132,7 @@ pub fn extract_code_data(repo_path: &Path) -> Result<Code, String> {
             spaces,
         };
 
-        code_data.files_data.insert(super::hash(path), file_data);
+        code_data.files_data.insert(hash::new(path), file_data);
     }
 
     Ok(code_data)
