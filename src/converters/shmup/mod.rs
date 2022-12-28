@@ -53,6 +53,7 @@ impl converters::Converter<Data> for ShmupConverter {
 fn build_converter_data(extracted_data: &extractor::Data) -> Data {
     let commit_oid = &extracted_data.git.ref_target.1;
     let objs = &extracted_data.git.objects;
+    let files = &extracted_data.code.files_data;
 
     let mut data = Data {
         ..Default::default()
@@ -61,7 +62,7 @@ fn build_converter_data(extracted_data: &extractor::Data) -> Data {
     //Get the initial commit
     if let Some(commit) = &objs[commit_oid].commit {
         let trees_oid = vec![commit.tree.clone()];
-        add_scenes(&trees_oid, &mut data, objs);
+        add_scenes(&trees_oid, &mut data, objs, files);
     }
 
     data
@@ -71,6 +72,7 @@ fn add_scenes(
     trees_oid: &Vec<String>,
     data: &mut Data,
     objs: &HashMap<String, extractor::git::Object>,
+    files: &HashMap<String, extractor::code::FileData>,
 ) {
     for tree_oid in trees_oid {
         if let Some(tree) = &objs[tree_oid].tree {
@@ -81,7 +83,7 @@ fn add_scenes(
             // Create entities
             for oid in &tree.objects {
                 if let Some(blob) = &objs[oid].blob {
-                    let mut entity = blob_to_entity(blob);
+                    let mut entity = blob_to_entity(blob, files);
                     entity.scene_id = oid.clone();
                     scene.entities.insert(oid.clone(), entity);
                 } else {
@@ -90,7 +92,7 @@ fn add_scenes(
             }
 
             if !scene.sub_scenes.is_empty() {
-                add_scenes(&scene.sub_scenes, data, objs);
+                add_scenes(&scene.sub_scenes, data, objs, files);
             }
 
             data.scenes.insert(tree.sha.clone(), scene);
@@ -98,14 +100,33 @@ fn add_scenes(
     }
 }
 
-fn blob_to_entity(blob: &extractor::git::Blob) -> Entity {
+fn blob_to_entity(
+    blob: &extractor::git::Blob,
+    files: &HashMap<String, extractor::code::FileData>,
+) -> Entity {
     Entity {
         id: blob.sha.clone(),
         name: blob.name.clone(),
         color: "a color".to_string(),
         kind: "kind".to_string(),
-        speed: 0.2,
+        speed: get_speed(blob, files),
         hp: 1.,
         ..Default::default()
+    }
+}
+
+/// This function returns the speed of an entity
+/// relative its spaces
+///
+/// It's important to note that this function is
+/// a placeholder and is only used to demonstrate
+/// how we can map files with blob data
+fn get_speed(
+    blob: &extractor::git::Blob,
+    files: &HashMap<String, extractor::code::FileData>,
+) -> f32 {
+    match files.get(&blob.path_sha) {
+        Some(file) => 1. / file.spaces.spaces.len() as f32,
+        None => 0.1,
     }
 }
