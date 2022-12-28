@@ -201,10 +201,11 @@ fn add_tree_objects(
 
                 //Create and add Blob objects
                 git2::ObjectType::Blob => {
+                    let name = entry.name().unwrap_or("").to_string();
                     obj.kind = ObjectKind::Blob;
                     obj.blob = Some(Blob {
-                        name: entry.name().unwrap_or("").to_string(),
-                        path: path.to_string(),
+                        name: name.clone(),
+                        path: get_relative_path(path.to_string(), name),
                         sha: entry.id().to_string(),
                         filemode: entry.filemode(),
                     });
@@ -221,10 +222,11 @@ fn add_tree_objects(
 }
 
 fn build_tree_object<'tree>(path: String, entry: &TreeEntry<'tree>, repo: &Repository) -> Tree {
+    let name = entry.name().unwrap_or("").to_string();
     Tree {
-        name: entry.name().unwrap_or("").to_string(),
+        name: name.clone(),
         sha: entry.id().to_string(),
-        path,
+        path: get_relative_path(path.to_string(), name),
         filemode: entry.filemode(),
         objects: (|| -> Vec<String> {
             let mut objs = vec![];
@@ -242,5 +244,31 @@ fn build_tree_object<'tree>(path: String, entry: &TreeEntry<'tree>, repo: &Repos
             .unwrap();
             objs
         })(),
+    }
+}
+
+pub fn get_relative_path(path: String, file_name: String) -> String {
+    format!("{}{}", path, file_name)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::extractor::git;
+
+    #[test]
+    fn test_get_relative_path() {
+        assert_eq!(
+            git::get_relative_path("src/".to_string(), "test.rs".to_string()),
+            "src/test.rs"
+        );
+        assert_eq!(
+            git::get_relative_path("src/".to_string(), "".to_string()),
+            "src/"
+        );
+
+        assert_eq!(
+            git::get_relative_path("".to_string(), "test".to_string()),
+            "test"
+        );
     }
 }
