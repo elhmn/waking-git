@@ -80,7 +80,7 @@ pub struct Object {
 pub struct Git {
     pub metrics: Metrics,
     pub objects: HashMap<String, Object>,
-    //the ref_target is the ref used to traverse git the
+    //the ref_target is the ref used to traverse the git
     //repository tree.
     // (String, String) <=> (ref, oid)
     pub ref_target: (String, String),
