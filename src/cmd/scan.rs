@@ -43,12 +43,8 @@ pub fn run(args: &RunArgs, conf: config::Config) {
     };
 
     let conv = converters::shmup::new();
-    let _converted_data = match convert_data(&conf, &git_repo, extracted_data, &conv) {
-        Ok(d) => d,
-        Err(err) => {
-            println!("Error: failed to convert extracted data: {}", err);
-            return;
-        }
+    if let Err(err) = convert_data(&conf, &git_repo, extracted_data, &conv) {
+        println!("Error: failed to convert extracted data: {}", err);
     };
 }
 
