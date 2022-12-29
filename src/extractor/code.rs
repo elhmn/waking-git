@@ -1,12 +1,15 @@
+use crate::hash;
 use crate::repo::Repo;
 use rust_code_analysis::{get_function_spaces, read_file, FuncSpace, SpaceKind, LANG};
 use serde::Serialize;
+use std::collections::HashMap;
 use std::path::Path;
 use walkdir::WalkDir;
 
 #[derive(Serialize, Debug)]
 pub struct FileData {
     pub name: String,
+    pub path: String,
     pub extension: String,
     pub language: String,
     // Contains data about the code from rust_code_analysis
@@ -17,6 +20,7 @@ impl Default for FileData {
     fn default() -> FileData {
         FileData {
             name: Default::default(),
+            path: Default::default(),
             extension: Default::default(),
             language: Default::default(),
             spaces: FuncSpace {
@@ -34,7 +38,7 @@ impl Default for FileData {
 #[derive(Serialize, Debug, Default)]
 pub struct Code {
     pub repo_name: String,
-    pub files_data: Vec<FileData>,
+    pub files_data: HashMap<String, FileData>,
 }
 
 pub fn get_repo_path(repo: &Repo) -> Result<&Path, String> {
@@ -76,7 +80,7 @@ pub fn extract_code_data(repo_path: &Path) -> Result<Code, String> {
 
     let mut code_data = Code {
         repo_name,
-        files_data: Vec::new(),
+        files_data: HashMap::new(),
     };
 
     // Extract code data from each file in the given repository
@@ -87,7 +91,6 @@ pub fn extract_code_data(repo_path: &Path) -> Result<Code, String> {
         .filter(|e| e.file_type().is_file())
     {
         let file_path = file.path();
-
         let file_name = match file_path.file_name() {
             Some(file_name) => String::from(file_name.to_string_lossy()),
             None => continue,
@@ -113,14 +116,23 @@ pub fn extract_code_data(repo_path: &Path) -> Result<Code, String> {
             None => continue,
         };
 
+        //Get the path file relative to the root of the git repository
+        //for a /Users/elhmn/.wake/scanner/github-com-elhmn-qautomata/src/example.rs file
+        //the `path` will be `src/example.rs`
+        let path = match file_path.strip_prefix(String::from(repo_path.to_string_lossy())) {
+            Ok(p) => p.to_str().unwrap_or_default().to_string(),
+            Err(_) => "".to_string(),
+        };
+
         let file_data = FileData {
             name: file_name,
+            path: path.clone(),
             extension: file_extension,
             language: String::from(file_language.get_name()),
             spaces,
         };
 
-        code_data.files_data.push(file_data);
+        code_data.files_data.insert(hash::new(path), file_data);
     }
 
     Ok(code_data)
