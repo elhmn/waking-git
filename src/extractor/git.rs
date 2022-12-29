@@ -25,12 +25,12 @@ pub struct Metrics {}
 pub struct Blob {
     pub filemode: i32,
     pub name: String,
-    //path is the path to the file/directiry relative
+    //path is the path to the file/directory relative
     //to the root tree
-    //this is used to map git data with code data
+    //this is used to map git data to code data.
     //that hashed path is used as a key to a code entry
     pub path: String,
-    //path_sha is the sha 256 of the path
+    //path_sha is the sha 256 of the path.
     //this is used to optimize code data lookup
     pub path_sha: String,
     pub sha: String,
@@ -39,12 +39,12 @@ pub struct Blob {
 #[derive(Serialize, Default)]
 pub struct Tree {
     pub name: String,
-    //path is the path to the file/directiry relative
+    //path is the path to the file/directory relative
     //to the root tree.
-    //this is used to map git data with code data
+    //this is used to map git data to code data.
     //that hashed path is used as a key to a code entry
     pub path: String,
-    //path_sha is the sha 256 of the path
+    //path_sha is the sha 256 of the path.
     //this is used to optimize code data lookup
     pub path_sha: String,
     //sha the git object hash

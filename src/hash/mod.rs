@@ -1,7 +1,7 @@
 use data_encoding::HEXLOWER;
 use sha2::{Digest, Sha256};
 
-/// hash generate a sha256 hash of the `data`
+/// hash generates a sha256 hash of the `data`
 pub fn new(data: String) -> String {
     let mut hasher = Sha256::new();
     hasher.update(data);

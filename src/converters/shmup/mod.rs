@@ -20,7 +20,7 @@ pub struct Scene {
 #[derive(Serialize, Default)]
 pub struct Entity {
     pub id: String,
-    //scene id of the object belongs to
+    //the scene id the object belongs to
     pub scene_id: String,
     pub name: String,
     pub kind: String,
