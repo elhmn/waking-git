@@ -8,11 +8,12 @@ use rand::prelude::*;
 
 pub struct ShmupPlugin;
 
-const BACKGROUND_COLOR: Color = Color::rgb(0., 0., 0.);
-
 impl Plugin for ShmupPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(ClearColor(BACKGROUND_COLOR))
+        // set GitHub dark mode background color
+        let bg_color: Color = Color::hex("22272d").unwrap();
+
+        app.insert_resource(ClearColor(bg_color))
             .add_plugin(debug::DebugPlugin)
             .add_startup_system(setup)
             .add_startup_system(movements::pattern_3_init)
@@ -53,6 +54,14 @@ fn setup(
             );
 
             spawn_hexagon(
+                entity_id.to_string(),
+                &mut commands,
+                win,
+                &mut meshes,
+                &mut materials,
+            );
+
+            spawn_triangle(
                 entity_id.to_string(),
                 &mut commands,
                 win,
@@ -108,6 +117,30 @@ fn spawn_hexagon(
         .spawn(MaterialMesh2dBundle {
             mesh: meshes.add(shape::RegularPolygon::new(10., 6).into()).into(),
             material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
+            transform: Transform::from_translation(get_random_position(win.width(), win.height())),
+            ..default()
+        })
+        .insert(patterns::Pattern3 {
+            speed: 150.,
+            ..default()
+        })
+        .insert(cell::Cell {
+            name: id,
+            ..Default::default()
+        });
+}
+
+fn spawn_triangle(
+    id: String,
+    commands: &mut Commands,
+    win: &Window,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+) {
+    commands
+        .spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(shape::RegularPolygon::new(10., 3).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::ORANGE_RED)),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
         })
