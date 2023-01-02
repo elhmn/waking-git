@@ -3,6 +3,7 @@ mod config;
 mod converters;
 mod extractor;
 mod hash;
+mod languages;
 mod players;
 mod repo;
 

@@ -1,4 +1,4 @@
-use crate::{converters, extractor};
+use crate::{converters, extractor, languages};
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -23,6 +23,8 @@ pub struct Entity {
     //the scene id the object belongs to
     pub scene_id: String,
     pub name: String,
+    //the kind is the shape the entity will take
+    //the values supported are circle | triangle | hexagon | triangle
     pub kind: String,
     pub color: String,
     pub weapon: String,
