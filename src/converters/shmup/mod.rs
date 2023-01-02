@@ -6,18 +6,18 @@ pub struct ShmupConverter {}
 
 const CONVERTER_NAME: &str = "shmup";
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Debug)]
 pub struct Data {
     pub scenes: HashMap<String, Scene>,
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Debug)]
 pub struct Scene {
     pub entities: HashMap<String, Entity>,
     pub sub_scenes: Vec<String>,
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Debug)]
 pub struct Entity {
     pub id: String,
     //the scene id the object belongs to
