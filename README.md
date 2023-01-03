@@ -99,6 +99,7 @@ Here is a list of research papers and code visualisers that will be useful to wo
 - [dynamic code analysers](https://github.com/analysis-tools-dev/dynamic-analysis)
 - [Gephi](https://gephi.org)
 - [Rust code analysis](https://github.com/mozilla/rust-code-analysis)
+- [emerge](https://github.com/glato/emerge)
 - Some research papers:
 	- [1](https://www.researchgate.net/publication/328282991_Towards_an_Open_Source_Stack_to_Create_a_Unified_Data_Source_for_Software_Analysis_and_Visualization)
 	- [2](https://www.researchgate.net/publication/328019593_The_Recursive_Disk_Metaphor_-_A_Glyph-based_Approach_for_Software_Visualization)
