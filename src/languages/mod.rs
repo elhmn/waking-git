@@ -4,23 +4,50 @@ use std::collections::BTreeMap;
 #[derive(Debug, Deserialize)]
 #[allow(dead_code)]
 pub struct Language {
-    fs_name: Option<String>,
+    pub fs_name: Option<String>,
     #[serde(rename = "type")]
-    kind: String,
-    aliases: Option<Vec<String>>,
-    code_mirror_mode: Option<String>,
-    code_mirror_mime_type: Option<String>,
-    wrap: Option<bool>,
-    extensions: Option<Vec<String>>,
-    filenames: Option<Vec<String>>,
-    interpreters: Option<Vec<String>>,
-    language_id: i32,
-    color: Option<String>,
-    tm_scope: Option<String>,
-    group: Option<String>,
+    pub kind: String,
+    pub aliases: Option<Vec<String>>,
+    pub code_mirror_mode: Option<String>,
+    pub code_mirror_mime_type: Option<String>,
+    pub wrap: Option<bool>,
+    pub extensions: Option<Vec<String>>,
+    pub filenames: Option<Vec<String>>,
+    pub interpreters: Option<Vec<String>>,
+    pub language_id: i32,
+    pub color: Option<String>,
+    pub tm_scope: Option<String>,
+    pub group: Option<String>,
 }
 
-type Languages = BTreeMap<String, Language>;
+pub type Languages = BTreeMap<String, Language>;
+
+pub fn color_from_extension(languages: &Languages, extension: &str) -> String {
+    let mut found = Vec::new();
+
+    for l in languages.values() {
+        if let Some(e) = &l.extensions {
+            if e.contains(&extension.to_string()) {
+                found.push(l);
+            }
+        }
+    }
+    let mut color = "".to_string();
+
+    if !found.is_empty() {
+        let mut min = i32::MAX;
+        for f in found {
+            // we exclude file that have no tm_scope set as that means
+            // we have no grammar supported for these language entry
+            if f.language_id < min && f.tm_scope.clone().unwrap_or_default() != "none" {
+                color = f.color.clone().unwrap_or_default();
+                min = f.language_id;
+            }
+        }
+    }
+
+    color
+}
 
 /// To use cautiously as it loads the entire language file every time
 /// it is called

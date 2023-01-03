@@ -1,6 +1,7 @@
 use crate::{converters, extractor, languages};
 use serde::Serialize;
 use std::collections::HashMap;
+use std::path::Path;
 
 pub struct ShmupConverter {}
 
@@ -106,10 +107,11 @@ fn blob_to_entity(
     blob: &extractor::git::Blob,
     files: &HashMap<String, extractor::code::FileData>,
 ) -> Entity {
+    let languages = languages::new();
     Entity {
         id: blob.sha.clone(),
         name: blob.name.clone(),
-        color: "a color".to_string(),
+        color: get_color(blob, &languages),
         kind: "kind".to_string(),
         speed: get_speed(blob, files),
         hp: 1.,
@@ -131,4 +133,16 @@ fn get_speed(
         Some(file) => 1. / file.spaces.spaces.len() as f32,
         None => 0.1,
     }
+}
+
+/// determine the color of the entity from its
+/// extension
+fn get_color(blob: &extractor::git::Blob, languages: &languages::Languages) -> String {
+    let p = Path::new(blob.path.as_str());
+    if let Some(ext) = p.extension() {
+        let converted_extension = format!(".{}", ext.to_string_lossy().into_owned());
+        return languages::color_from_extension(languages, &converted_extension);
+    }
+
+    "".to_string()
 }
