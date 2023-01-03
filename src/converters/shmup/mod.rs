@@ -1,6 +1,7 @@
-use crate::{converters, extractor};
+use crate::{converters, extractor, languages, shapes};
 use serde::Serialize;
 use std::collections::HashMap;
+use std::path::Path;
 
 pub struct ShmupConverter {}
 
@@ -23,6 +24,8 @@ pub struct Entity {
     //the scene id the object belongs to
     pub scene_id: String,
     pub name: String,
+    //the kind is the shape the entity will take
+    //the values supported are circle | triangle | hexagon | triangle
     pub kind: String,
     pub color: String,
     pub weapon: String,
@@ -104,11 +107,12 @@ fn blob_to_entity(
     blob: &extractor::git::Blob,
     files: &HashMap<String, extractor::code::FileData>,
 ) -> Entity {
+    let languages = languages::new();
     Entity {
         id: blob.sha.clone(),
         name: blob.name.clone(),
-        color: "a color".to_string(),
-        kind: "kind".to_string(),
+        color: get_color(blob, &languages),
+        kind: get_kind(blob, &languages),
         speed: get_speed(blob, files),
         hp: 1.,
         ..Default::default()
@@ -128,5 +132,41 @@ fn get_speed(
     match files.get(&blob.path_sha) {
         Some(file) => 1. / file.spaces.spaces.len() as f32,
         None => 0.1,
+    }
+}
+
+/// determine the color of the entity from its
+/// extension
+fn get_color(blob: &extractor::git::Blob, languages: &languages::Languages) -> String {
+    let p = Path::new(blob.path.as_str());
+    if let Some(ext) = p.extension() {
+        let converted_extension = format!(".{}", ext.to_string_lossy().into_owned());
+        return languages::color_from_extension(languages, &converted_extension);
+    }
+
+    "".to_string()
+}
+
+/// returns the kind of language file the blob is
+fn get_kind(blob: &extractor::git::Blob, languages: &languages::Languages) -> String {
+    let p = Path::new(blob.path.as_str());
+    let mut kind = "".to_string();
+    if let Some(ext) = p.extension() {
+        let converted_extension = format!(".{}", ext.to_string_lossy().into_owned());
+        kind = languages::kind_from_extension(languages, &converted_extension);
+    }
+
+    kind_to_shape(kind.as_str()).to_string()
+}
+
+/// convert a kind to a known shape that will be used by the
+/// player
+fn kind_to_shape(kind: &str) -> &str {
+    match kind {
+        "data" => shapes::RECTANGLE,
+        "prose" => shapes::RECTANGLE,
+        "markup" => shapes::HEXAGON,
+        "programming" => shapes::CIRCLE,
+        _ => shapes::TRIANGLE,
     }
 }
