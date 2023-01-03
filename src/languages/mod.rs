@@ -49,6 +49,33 @@ pub fn color_from_extension(languages: &Languages, extension: &str) -> String {
     color
 }
 
+pub fn kind_from_extension(languages: &Languages, extension: &str) -> String {
+    let mut found = Vec::new();
+
+    for l in languages.values() {
+        if let Some(e) = &l.extensions {
+            if e.contains(&extension.to_string()) {
+                found.push(l);
+            }
+        }
+    }
+    let mut kind = "".to_string();
+
+    if !found.is_empty() {
+        let mut min = i32::MAX;
+        for f in found {
+            // we exclude file that have no tm_scope set as that means
+            // we have no grammar supported for these language entry
+            if f.language_id < min && f.tm_scope.clone().unwrap_or_default() != "none" {
+                kind = f.kind.clone();
+                min = f.language_id;
+            }
+        }
+    }
+
+    kind
+}
+
 /// To use cautiously as it loads the entire language file every time
 /// it is called
 pub fn new() -> Languages {

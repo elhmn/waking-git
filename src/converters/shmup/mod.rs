@@ -1,4 +1,4 @@
-use crate::{converters, extractor, languages};
+use crate::{converters, extractor, languages, shapes};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::path::Path;
@@ -112,7 +112,7 @@ fn blob_to_entity(
         id: blob.sha.clone(),
         name: blob.name.clone(),
         color: get_color(blob, &languages),
-        kind: "kind".to_string(),
+        kind: get_kind(blob, &languages),
         speed: get_speed(blob, files),
         hp: 1.,
         ..Default::default()
@@ -145,4 +145,28 @@ fn get_color(blob: &extractor::git::Blob, languages: &languages::Languages) -> S
     }
 
     "".to_string()
+}
+
+/// returns the kind of language file the blob is
+fn get_kind(blob: &extractor::git::Blob, languages: &languages::Languages) -> String {
+    let p = Path::new(blob.path.as_str());
+    let mut kind = "".to_string();
+    if let Some(ext) = p.extension() {
+        let converted_extension = format!(".{}", ext.to_string_lossy().into_owned());
+        kind = languages::kind_from_extension(languages, &converted_extension);
+    }
+
+    kind_to_shape(kind.as_str()).to_string()
+}
+
+/// convert a kind to a known shape that will be used by the
+/// player
+fn kind_to_shape(kind: &str) -> &str {
+    match kind {
+        "data" => shapes::RECTANGLE,
+        "prose" => shapes::RECTANGLE,
+        "markup" => shapes::HEXAGON,
+        "programming" => shapes::CIRCLE,
+        _ => shapes::TRIANGLE,
+    }
 }
