@@ -135,7 +135,22 @@ pub fn extract_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
         }
     };
 
+    //we create a first walker for the purpose of counting how many
+    //iteration we might need to perform.
+    //This is done because the git2::Revwalk object does not implement
+    //a Clone Trait and we struggled to use the method `walk.count()` on it
+    //neither &walk.count() nor walk.clone().count() allowed us to count
+    //and iterate over the revwalk iterator.
+    //
+    //I wish there was a better way to do it, but this is the solution
+    //I currently have
     let mut walk = r.revwalk()?;
+    walk.push(oid)?;
+    let _count = walk.count();
+
+    //now we recreated the walker to perform the iteration
+    //we initially planned to use it for
+    walk = r.revwalk()?;
     walk.push(oid)?;
 
     let mut objects: HashMap<String, Object> = HashMap::new();

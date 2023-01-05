@@ -24,6 +24,7 @@ serde_json = "1.0"
 serde_yaml = "0.9"
 serde_with = { version = "2.0.0"}
 home = "0.5.4"
+rayon = "1.6"
 
 #for fast compilation of
 # your program consider using the dynamic feature,
