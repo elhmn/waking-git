@@ -113,7 +113,7 @@ impl Object {
 }
 
 pub fn new(repo: &repo::Repo) -> Result<Git, String> {
-    let git_data = match extrat_git_objects(repo) {
+    let git_data = match extract_git_objects(repo) {
         Ok(d) => d,
         Err(err) => return Err(format!("failed to extract git objects: {}", err)),
     };
@@ -121,7 +121,7 @@ pub fn new(repo: &repo::Repo) -> Result<Git, String> {
     Ok(git_data)
 }
 
-pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
+pub fn extract_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
     let r = &repo.repo;
 
     let mut ref_name = "refs/heads/master";
