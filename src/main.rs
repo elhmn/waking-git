@@ -1,12 +1,5 @@
-mod cmd;
-mod config;
-mod converters;
-mod extractor;
-mod hash;
-mod languages;
-mod players;
-mod repo;
-mod shapes;
+use lib::cmd;
+use lib::config;
 
 fn main() {
     let conf = config::Config::new();

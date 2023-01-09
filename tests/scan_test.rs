@@ -1,15 +1,14 @@
 use assert_cmd::prelude::*;
-use common::TMP_DIR;
+use lib::utils::test;
+use lib::utils::test::TMP_DIR;
 use std::path::PathBuf;
 // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use std::process::Command; // Run programs
 
-mod common;
-
 #[test]
 fn fail_to_parse_wrong_url() -> Result<(), Box<dyn std::error::Error>> {
-    common::setup();
+    test::setup();
 
     struct Test<'a> {
         url: &'a str,
@@ -45,19 +44,19 @@ fn fail_to_parse_wrong_url() -> Result<(), Box<dyn std::error::Error>> {
 
     for t in tests {
         let mut cmd = Command::cargo_bin("wake")?;
-        cmd.current_dir(common::TMP_DIR).arg("scan").arg(t.url);
+        cmd.arg("scan").arg(t.url);
         cmd.assert()
             .success()
             .stdout(predicate::str::contains(t.exp));
     }
 
-    common::teardown();
+    test::teardown();
     Ok(())
 }
 
 #[test]
 fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
-    common::setup();
+    test::setup();
     let url = "https://github.com/elhmn/ckp";
 
     let mut cmd = Command::cargo_bin("wake")?;
@@ -82,13 +81,13 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
     );
     assert!(std::path::Path::new(expected_extracted_file.as_str()).exists());
 
-    common::teardown();
+    test::teardown();
     Ok(())
 }
 
 #[test]
 fn doesnt_fetch_repository_if_already_exists() -> Result<(), Box<dyn std::error::Error>> {
-    common::setup();
+    test::setup();
     let url = "https://github.com/elhmn/ckp";
 
     let mut cmd = Command::cargo_bin("wake")?;
@@ -104,6 +103,6 @@ fn doesnt_fetch_repository_if_already_exists() -> Result<(), Box<dyn std::error:
         .success()
         .stdout(predicate::str::contains("repository cloned successfully"));
 
-    common::teardown();
+    test::teardown();
     Ok(())
 }

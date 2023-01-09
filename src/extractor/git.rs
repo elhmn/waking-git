@@ -113,7 +113,7 @@ impl Object {
 }
 
 pub fn new(repo: &repo::Repo) -> Result<Git, String> {
-    let git_data = match extrat_git_objects(repo) {
+    let git_data = match extract_git_objects(repo) {
         Ok(d) => d,
         Err(err) => return Err(format!("failed to extract git objects: {}", err)),
     };
@@ -121,7 +121,7 @@ pub fn new(repo: &repo::Repo) -> Result<Git, String> {
     Ok(git_data)
 }
 
-pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
+pub fn par_extract_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
     let r = &repo.repo;
 
     let mut ref_name = "refs/heads/master";
@@ -135,7 +135,62 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
         }
     };
 
+    //we create a first walker for the purpose of counting how many
+    //iteration we might need to perform.
+    //This is done because the git2::Revwalk object does not implement
+    //a Clone Trait and we struggled to use the method `walk.count()` on it
+    //neither &walk.count() nor walk.clone().count() allowed us to count
+    //and iterate over the revwalk iterator.
+    //
+    //I wish there was a better way to do it, but this is the solution
+    //I currently have
     let mut walk = r.revwalk()?;
+    walk.push(oid)?;
+    let _count = walk.count();
+
+    //now we recreated the walker to perform the iteration
+    //we initially planned to use it for
+    walk = r.revwalk()?;
+    walk.push(oid)?;
+
+    let objects: HashMap<String, Object> = HashMap::new();
+    Ok(Git {
+        objects,
+        ref_target: (ref_name.to_string(), format!("{}", oid)),
+        ..Default::default()
+    })
+}
+
+pub fn extract_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
+    let r = &repo.repo;
+
+    let mut ref_name = "refs/heads/master";
+    //Get default reference oid
+    //First we check for `master` and if `master` does not exist we fallback to `main`
+    let oid = match repo.repo.refname_to_id(ref_name) {
+        Ok(oid) => oid,
+        Err(_) => {
+            ref_name = "refs/heads/main";
+            repo.repo.refname_to_id(ref_name)?
+        }
+    };
+
+    //we create a first walker for the purpose of counting how many
+    //iteration we might need to perform.
+    //This is done because the git2::Revwalk object does not implement
+    //a Clone Trait and we struggled to use the method `walk.count()` on it
+    //neither &walk.count() nor walk.clone().count() allowed us to count
+    //and iterate over the revwalk iterator.
+    //
+    //I wish there was a better way to do it, but this is the solution
+    //I currently have
+    let mut walk = r.revwalk()?;
+    walk.push(oid)?;
+    let _count = walk.count();
+
+    //now we recreated the walker to perform the iteration
+    //we initially planned to use it for
+    walk = r.revwalk()?;
     walk.push(oid)?;
 
     let mut objects: HashMap<String, Object> = HashMap::new();
