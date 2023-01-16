@@ -1,24 +1,26 @@
 use crate::{converters, extractor, languages, shapes};
+use rayon::prelude::*;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::path::Path;
+use std::sync::{Arc, Mutex};
 
 pub struct ShmupConverter {}
 
 const CONVERTER_NAME: &str = "shmup";
 
-#[derive(Serialize, Default, Debug)]
+#[derive(Serialize, Default, Debug, Clone)]
 pub struct Data {
     pub scenes: HashMap<String, Scene>,
 }
 
-#[derive(Serialize, Default, Debug)]
+#[derive(Serialize, Default, Debug, Clone)]
 pub struct Scene {
     pub entities: HashMap<String, Entity>,
     pub sub_scenes: Vec<String>,
 }
 
-#[derive(Serialize, Default, Debug)]
+#[derive(Serialize, Default, Debug, Clone)]
 pub struct Entity {
     pub id: String,
     //the scene id the object belongs to
@@ -58,26 +60,29 @@ fn build_converter_data(extracted_data: &extractor::Data) -> Data {
     let objs = &extracted_data.git.objects;
     let files = &extracted_data.code.files_data;
 
-    let mut data = Data {
+    let data = Data {
         ..Default::default()
     };
+
+    let mut_data = Arc::new(Mutex::new(data));
 
     //Get the initial commit
     if let Some(commit) = &objs[commit_oid].commit {
         let trees_oid = vec![commit.tree.clone()];
-        add_scenes(&trees_oid, &mut data, objs, files);
+        add_scenes(&trees_oid, mut_data.clone(), objs, files);
     }
 
+    let data = mut_data.lock().unwrap().to_owned();
     data
 }
 
 fn add_scenes(
     trees_oid: &Vec<String>,
-    data: &mut Data,
+    data: Arc<Mutex<Data>>,
     objs: &HashMap<String, extractor::git::Object>,
     files: &HashMap<String, extractor::code::FileData>,
 ) {
-    for tree_oid in trees_oid {
+    trees_oid.par_iter().for_each(|tree_oid| {
         if let Some(tree) = &objs[tree_oid].tree {
             let mut scene = Scene {
                 ..Default::default()
@@ -95,12 +100,12 @@ fn add_scenes(
             }
 
             if !scene.sub_scenes.is_empty() {
-                add_scenes(&scene.sub_scenes, data, objs, files);
+                add_scenes(&scene.sub_scenes, data.clone(), objs, files);
             }
 
-            data.scenes.insert(tree.sha.clone(), scene);
+            data.lock().unwrap().scenes.insert(tree.sha.clone(), scene);
         }
-    }
+    });
 }
 
 fn blob_to_entity(
