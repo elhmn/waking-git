@@ -38,6 +38,7 @@ rand = "0.8.5"
 sha2 = "0.10.6"
 data-encoding = "2.3.3"
 rayon = "1.6.1"
+spinners = "4.1.0"
 
 [dev-dependencies]
 assert_cmd = "2.0"
