@@ -1,0 +1,25 @@
+[package]
+name = "players"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+wake = { path = "../wake" }
+core = { path = "../core" }
+
+clap = { version = "4.0.23", features = ["derive"] }
+#for fast compilation of
+# your program consider using the dynamic feature,
+# with `--features bevy/dynamic` flags.
+# example: cargo run --features bevy/dynamic
+# This does not, work on windows.
+# Find out more https://docs.rs/bevy_dylib/latest/bevy_dylib/#the-recommended-way
+# and https://docs.rs/bevy_dylib/latest/bevy_dylib/#the-recommended-way
+bevy = { version = "0.9.0" }
+bevy-inspector-egui = "0.15.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+rand = "0.8.5"

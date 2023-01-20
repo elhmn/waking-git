@@ -3,8 +3,8 @@ use super::components::patterns;
 use super::debug;
 use super::systems::movements;
 use super::WorldData;
-use crate::shapes;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use core::shapes;
 use rand::prelude::*;
 
 pub struct ShmupPlugin;

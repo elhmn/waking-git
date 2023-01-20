@@ -1,6 +1,6 @@
 use assert_cmd::prelude::*;
-use lib::utils::test;
-use lib::utils::test::TMP_DIR;
+use core::utils::test;
+use core::utils::test::TMP_DIR;
 use std::path::PathBuf;
 // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions

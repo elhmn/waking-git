@@ -7,7 +7,7 @@ use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::time::FixedTimestep;
 use bevy::{app::PluginGroupBuilder, prelude::*};
 
-use crate::converters;
+use core::converters;
 
 const TIMESTEP_60_FPS: f64 = 1. / 60.;
 

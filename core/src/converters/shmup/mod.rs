@@ -1,6 +1,6 @@
 use crate::{converters, extractor, languages, shapes};
 use rayon::prelude::*;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
@@ -9,18 +9,18 @@ pub struct ShmupConverter {}
 
 const CONVERTER_NAME: &str = "shmup";
 
-#[derive(Serialize, Default, Debug, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct Data {
     pub scenes: HashMap<String, Scene>,
 }
 
-#[derive(Serialize, Default, Debug, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct Scene {
     pub entities: HashMap<String, Entity>,
     pub sub_scenes: Vec<String>,
 }
 
-#[derive(Serialize, Default, Debug, Clone)]
+#[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct Entity {
     pub id: String,
     //the scene id the object belongs to
@@ -135,7 +135,14 @@ fn get_speed(
     files: &HashMap<String, extractor::code::FileData>,
 ) -> f32 {
     match files.get(&blob.path_sha) {
-        Some(file) => 1. / file.spaces.spaces.len() as f32,
+        Some(file) => {
+            let ret = 1. / file.spaces.spaces.len() as f32;
+            if ret.is_infinite() {
+                1.
+            } else {
+                ret
+            }
+        }
         None => 0.1,
     }
 }
