@@ -17,3 +17,5 @@ home = "0.5.4"
 sha2 = "0.10.6"
 data-encoding = "2.3.3"
 rayon = "1.6.1"
+axum = "0.6.3"
+tokio = { version = "1.24.2", features = ["full"] }

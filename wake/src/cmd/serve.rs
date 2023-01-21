@@ -1,5 +1,6 @@
 use crate::config;
 use clap::Args;
+use core::server;
 
 #[derive(Args, Debug)]
 pub struct RunArgs {
@@ -9,7 +10,7 @@ pub struct RunArgs {
 }
 
 pub fn run(args: &RunArgs, _conf: config::Config) {
-    let port = args.port.as_deref().unwrap_or("8080");
+    let port = args.port.to_owned().unwrap_or_else(|| "8080".to_string());
 
-    println!("Running on port {}", port);
+    server::run(port);
 }
