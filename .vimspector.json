@@ -1,0 +1,31 @@
+{
+  "configurations": {
+    "launch": {
+      "adapter": "CodeLLDB",
+      "filetypes": ["rust"],
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/target/debug/wake",
+        "args": ["scan", "https://github.com/osscameroon/osscameroon-website"],
+        "breakpoints": {
+          "exception": {
+            "cpp_throw": "Y",
+            "cpp_catch": "Y"
+          }
+        }
+      }
+    },
+    "attach": {
+      "adapter": "CodeLLDB",
+      "filetypes": ["rust", "c", "cpp", "jai"],
+      "configuration": {
+        "request": "attach",
+        "program": "${workspaceRoot}/${fileBasenameNoExtension}",
+        "PID": "${PID}",
+        "breakpoints": {
+          "exception": { "all": "N", "catch": "N" }
+        }
+      }
+    }
+  }
+}
