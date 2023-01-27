@@ -1,9 +1,42 @@
 .DEFAULT_GOAL := help
 
+WAKE_FOLDER = .wake
+BIN_PATH = ~/$(WAKE_FOLDER)/bin
+PLAYERS_BIN_PATH = ~/$(WAKE_FOLDER)/bin/players
+PLAYERS_TARGET = ./target/debug/players
+WAKE_TARGET = ./target/debug/wake
+
 ## build: build application binary.
 .PHONY: build
-build:
+build: install-players
 	cargo build
+
+## run: run an example.
+.PHONY: run
+run: install-players
+	cargo run -p wake -- play shmup https://github.com/osscameroon/osscameroon-website
+
+## build-wake: build wake binary.
+.PHONY: build-wake
+build-wake: $(WAKE_TARGET)
+
+$(WAKE_TARGET):
+	cargo build -p wake
+
+## install-players: install players binary.
+.PHONY: install-players
+install-players: $(PLAYERS_BIN_PATH)
+
+$(PLAYERS_BIN_PATH):
+	mkdir -p ~/$(WAKE_FOLDER)/bin/
+	cp $(PLAYERS_TARGET) $(BIN_PATH)
+
+## build-players: build players binary.
+.PHONY: build-players
+build-players: $(PLAYERS_TARGET)
+
+$(PLAYERS_TARGET):
+	cargo build -p players
 
 .PHONY: install-deps
 install-deps:
@@ -37,7 +70,16 @@ all: help
 .PHONY: help
 help: Makefile
 	@echo " You can build \`wake\` using \`make build\`"
-	@echo " or run it using \`cargo run scan https://github.com/elhmn/ckp\`"
+	@echo " or run an example using \`make run\`"
 	@echo ""
 	@echo " Choose a command..."
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
+	@echo ""
+	@echo "You could run it using cargo commands directly"
+	@echo "For example: \`"cargo run -p wake -- play shmup https://github.com/elhmn/waking-git"\`"
+	@echo ""
+	@echo "Scan a repo:"
+	@echo "\`"cargo run -p wake -- scan https://github.com/elhmn/waking-git"\`"
+	@echo ""
+	@echo "Run the player:"
+	@echo "\`"cargo run -p players -- play ~/.wake/scanner/github-com-elhmn-waking-git/shmup-converted.json"\`"
