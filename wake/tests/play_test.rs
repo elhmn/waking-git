@@ -11,7 +11,7 @@ fn should_work_correctly() -> Result<(), Box<dyn std::error::Error>> {
     let url = "https://github.com/elhmn/ckp";
 
     let mut cmd = Command::cargo_bin("wake")?;
-    cmd.arg("play").arg(url);
+    cmd.arg("play").arg("shmup").arg(url);
 
     //Test that the player is running
     cmd.assert()
