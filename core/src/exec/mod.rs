@@ -6,6 +6,15 @@ use std::process::Command;
 
 pub fn run_player(player: String, file: String) -> Result<String, io::Error> {
     let players_bin = get_players_bin();
+
+    //check that players_bin file exists
+    if !path::Path::new(&players_bin).exists() {
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("`{players_bin}` file not found"),
+        ));
+    }
+
     let output = Command::new(players_bin)
         .arg(player)
         .arg(file)
