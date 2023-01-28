@@ -1,5 +1,6 @@
+use crate::hash;
 use crate::repo;
-use git2;
+use git2::{self, Repository, TreeEntry};
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -24,12 +25,28 @@ pub struct Metrics {}
 pub struct Blob {
     pub filemode: i32,
     pub name: String,
+    //path is the path to the file/directory relative
+    //to the root tree
+    //this is used to map git data to code data.
+    //that hashed path is used as a key to a code entry
+    pub path: String,
+    //path_sha is the sha 256 of the path.
+    //this is used to optimize code data lookup
+    pub path_sha: String,
     pub sha: String,
 }
 
 #[derive(Serialize, Default)]
 pub struct Tree {
     pub name: String,
+    //path is the path to the file/directory relative
+    //to the root tree.
+    //this is used to map git data to code data.
+    //that hashed path is used as a key to a code entry
+    pub path: String,
+    //path_sha is the sha 256 of the path.
+    //this is used to optimize code data lookup
+    pub path_sha: String,
     //sha the git object hash
     pub sha: String,
     pub filemode: i32,
@@ -98,7 +115,7 @@ impl Object {
 pub fn new(repo: &repo::Repo) -> Result<Git, String> {
     let git_data = match extrat_git_objects(repo) {
         Ok(d) => d,
-        Err(err) => return Err(format!("failed to extract git objects: {}", err)),
+        Err(err) => return Err(format!("failed to extract git objects: {err}")),
     };
 
     Ok(git_data)
@@ -154,7 +171,7 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
 
     Ok(Git {
         objects,
-        ref_target: (ref_name.to_string(), format!("{}", oid)),
+        ref_target: (ref_name.to_string(), format!("{oid}")),
         ..Default::default()
     })
 }
@@ -164,42 +181,41 @@ fn add_tree_objects(
     objects: &mut HashMap<String, Object>,
     repo: &git2::Repository,
 ) -> Result<(), git2::Error> {
-    tree.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
+    //Create the root tree object
+    {
         let mut obj = Object::new();
+        obj.kind = ObjectKind::Tree;
+        obj.tree = Some(Tree {
+            name: "".to_string(),
+            path: "".to_string(),
+            path_sha: hash::new("".to_string()),
+            sha: tree.id().to_string(),
+            filemode: 0,
+            objects: tree.iter().map(|t| t.id().to_string()).collect(),
+        });
 
+        objects.insert(tree.id().to_string(), obj);
+    }
+
+    tree.walk(git2::TreeWalkMode::PreOrder, |path, entry| {
+        let mut obj = Object::new();
         if let Some(kind) = entry.kind() {
             match kind {
                 //Create and add Tree objects
                 git2::ObjectType::Tree => {
                     obj.kind = ObjectKind::Tree;
-                    obj.tree = Some(Tree {
-                        name: entry.name().unwrap_or("").to_string(),
-                        sha: entry.id().to_string(),
-                        filemode: entry.filemode(),
-                        objects: (|| -> Vec<String> {
-                            let mut objs = vec![];
-                            let t = repo.find_tree(entry.id()).unwrap();
-
-                            //We walk down the tree to find every blob or tree objects and add them
-                            //to our list of objects
-                            t.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
-                                objs.push(entry.id().to_string());
-                                if Some(git2::ObjectType::Tree) == entry.kind() {
-                                    return git2::TreeWalkResult::Skip;
-                                }
-                                git2::TreeWalkResult::Ok
-                            })
-                            .unwrap();
-                            objs
-                        })(),
-                    });
+                    obj.tree = Some(build_tree_object(path.to_string(), entry, repo));
                 }
 
                 //Create and add Blob objects
                 git2::ObjectType::Blob => {
+                    let name = entry.name().unwrap_or("").to_string();
+                    let path = get_relative_path(path.to_string(), name.clone());
                     obj.kind = ObjectKind::Blob;
                     obj.blob = Some(Blob {
-                        name: entry.name().unwrap_or("").to_string(),
+                        name,
+                        path: path.clone(),
+                        path_sha: hash::new(path),
                         sha: entry.id().to_string(),
                         filemode: entry.filemode(),
                     });
@@ -213,4 +229,58 @@ fn add_tree_objects(
     })?;
 
     Ok(())
+}
+
+fn build_tree_object(path: String, entry: &TreeEntry, repo: &Repository) -> Tree {
+    let name = entry.name().unwrap_or("").to_string();
+    let path = get_relative_path(path, name.clone());
+    Tree {
+        name,
+        sha: entry.id().to_string(),
+        path: path.clone(),
+        path_sha: hash::new(path),
+        filemode: entry.filemode(),
+        objects: (|| -> Vec<String> {
+            let mut objs = vec![];
+            let t = repo.find_tree(entry.id()).unwrap();
+
+            //We walk down the tree to find every blob or tree objects and add them
+            //to our list of objects
+            t.walk(git2::TreeWalkMode::PreOrder, |_, entry| {
+                objs.push(entry.id().to_string());
+                if Some(git2::ObjectType::Tree) == entry.kind() {
+                    return git2::TreeWalkResult::Skip;
+                }
+                git2::TreeWalkResult::Ok
+            })
+            .unwrap();
+            objs
+        })(),
+    }
+}
+
+pub fn get_relative_path(path: String, file_name: String) -> String {
+    format!("{path}{file_name}")
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::extractor::git;
+
+    #[test]
+    fn test_get_relative_path() {
+        assert_eq!(
+            git::get_relative_path("src/".to_string(), "test.rs".to_string()),
+            "src/test.rs"
+        );
+        assert_eq!(
+            git::get_relative_path("src/".to_string(), "".to_string()),
+            "src/"
+        );
+
+        assert_eq!(
+            git::get_relative_path("".to_string(), "test".to_string()),
+            "test"
+        );
+    }
 }

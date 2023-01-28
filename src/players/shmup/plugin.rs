@@ -41,7 +41,7 @@ fn setup(
                 ..default()
             })
             .insert(cell::Cell {
-                name: format!("{}", i),
+                name: format!("{i}"),
                 ..Default::default()
             });
 

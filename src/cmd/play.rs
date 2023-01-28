@@ -17,7 +17,7 @@ pub fn run(args: &RunArgs, _conf: config::Config) {
     println!("Play run command invoked");
 
     if !dir.is_empty() {
-        println!("Called with {}", dir);
+        println!("Called with {dir}");
     }
 
     // check if we are running the binary for integration tests
