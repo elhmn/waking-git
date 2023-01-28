@@ -16,18 +16,18 @@ pub fn run(args: &RunArgs, conf: config::Config) {
 
     let git_repo = match scan::clone_repository(&repo, &conf) {
         Ok(r) => {
-            println!("`{}` repository cloned successfully", repo);
+            println!("`{repo}` repository cloned successfully");
             r
         }
         Err(err) => {
-            return println!("Error: {}", err);
+            return println!("Error: {err}");
         }
     };
 
     let extracted_data = match scan::extract_data(&conf, &git_repo) {
         Ok(d) => d,
         Err(err) => {
-            println!("Error: failed to extract repository data: {}", err);
+            println!("Error: failed to extract repository data: {err}");
             return;
         }
     };
@@ -36,7 +36,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
     let converted_data = match scan::convert_data(&conf, &git_repo, extracted_data, &conv) {
         Ok(d) => d,
         Err(err) => {
-            println!("Error: failed to convert extracted data: {}", err);
+            println!("Error: failed to convert extracted data: {err}");
             return;
         }
     };
