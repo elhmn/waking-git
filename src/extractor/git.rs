@@ -115,7 +115,7 @@ impl Object {
 pub fn new(repo: &repo::Repo) -> Result<Git, String> {
     let git_data = match extrat_git_objects(repo) {
         Ok(d) => d,
-        Err(err) => return Err(format!("failed to extract git objects: {}", err)),
+        Err(err) => return Err(format!("failed to extract git objects: {err}")),
     };
 
     Ok(git_data)
@@ -171,7 +171,7 @@ pub fn extrat_git_objects(repo: &repo::Repo) -> Result<Git, git2::Error> {
 
     Ok(Git {
         objects,
-        ref_target: (ref_name.to_string(), format!("{}", oid)),
+        ref_target: (ref_name.to_string(), format!("{oid}")),
         ..Default::default()
     })
 }
@@ -231,7 +231,7 @@ fn add_tree_objects(
     Ok(())
 }
 
-fn build_tree_object<'tree>(path: String, entry: &TreeEntry<'tree>, repo: &Repository) -> Tree {
+fn build_tree_object(path: String, entry: &TreeEntry, repo: &Repository) -> Tree {
     let name = entry.name().unwrap_or("").to_string();
     let path = get_relative_path(path, name.clone());
     Tree {
@@ -260,7 +260,7 @@ fn build_tree_object<'tree>(path: String, entry: &TreeEntry<'tree>, repo: &Repos
 }
 
 pub fn get_relative_path(path: String, file_name: String) -> String {
-    format!("{}{}", path, file_name)
+    format!("{path}{file_name}")
 }
 
 #[cfg(test)]
