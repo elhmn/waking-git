@@ -20,7 +20,8 @@ pub fn run(args: &RunArgs, conf: config::Config) {
             r
         }
         Err(err) => {
-            return println!("Error: {err}");
+            println!("Error: {err}");
+            return;
         }
     };
 
