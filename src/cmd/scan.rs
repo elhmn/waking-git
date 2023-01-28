@@ -94,7 +94,7 @@ pub fn convert_data<Data: serde::Serialize>(
     match store_json_data(json_data, dest_folder, dest_path.clone()) {
         Ok(_) => (),
         Err(err) => {
-            return Err(format!("Error: failed to extract repository data: {}", err));
+            return Err(format!("Error: failed to convert extracted data: {}", err));
         }
     };
 
