@@ -54,6 +54,16 @@ test: install-deps
 lint: install-deps
 	cargo clippy -- -D warnings || (echo "\nFix linting errors with \`__CARGO_FIX_YOLO=1 cargo clippy --fix\`"; exit 1)
 
+## lint-players: run linter over the players workspace
+.PHONY: lint
+lint-players: install-deps
+	cargo clippy -p players -- -D warnings || (echo "\nFix linting errors with \`__CARGO_FIX_YOLO=1 cargo clippy --fix\`"; exit 1)
+
+## lint-wake: run linter over the wake workspace
+.PHONY: lint
+lint-wake: install-deps
+	cargo clippy -p wake -- -D warnings || (echo "\nFix linting errors with \`__CARGO_FIX_YOLO=1 cargo clippy --fix\`"; exit 1)
+
 ## fmt: check your code format
 .PHONY: fmt
 fmt: install-deps

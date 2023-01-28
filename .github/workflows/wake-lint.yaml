@@ -1,0 +1,19 @@
+name: Wake Lint
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'players/**'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: "check lint with clippy"
+        run: |
+          make lint-wake
