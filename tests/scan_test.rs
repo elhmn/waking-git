@@ -72,7 +72,7 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
     let dir = PathBuf::from(TMP_DIR);
     let tmp_folder = format!("{}/{}", dir.to_str().unwrap_or(""), ".wake");
     let expected_dir = format!("{}/{}/{}", tmp_folder, "repos", "github-com-elhmn-ckp");
-    println!("expected_dir: {}", expected_dir);
+    println!("expected_dir: {expected_dir}");
     assert!(std::path::Path::new(expected_dir.as_str()).exists());
 
     //the ./tmp/scanner/github-com-elhmn-ckp/extracted.json directory should be created

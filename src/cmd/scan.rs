@@ -26,25 +26,25 @@ pub fn run(args: &RunArgs, conf: config::Config) {
 
     let git_repo = match clone_repository(&repo, &conf) {
         Ok(r) => {
-            println!("`{}` repository cloned successfully", repo);
+            println!("`{repo}` repository cloned successfully");
             r
         }
         Err(err) => {
-            return println!("Error: {}", err);
+            return println!("Error: {err}");
         }
     };
 
     let extracted_data = match extract_data(&conf, &git_repo) {
         Ok(d) => d,
         Err(err) => {
-            println!("Error: failed to extract repository data: {}", err);
+            println!("Error: failed to extract repository data: {err}");
             return;
         }
     };
 
     let conv = converters::shmup::new();
     if let Err(err) = convert_data(&conf, &git_repo, extracted_data, &conv) {
-        println!("Error: failed to convert extracted data: {}", err);
+        println!("Error: failed to convert extracted data: {err}");
     };
 }
 
@@ -57,19 +57,16 @@ pub fn extract_data(
         "{}/{}/{}",
         conf.wake_path, SCANNER_FOLDER_NAME, git_repo.folder_name
     );
-    let dest_path = format!("{}/{}", dest_folder, EXTRACTOR_FILE_NAME);
+    let dest_path = format!("{dest_folder}/{EXTRACTOR_FILE_NAME}");
     let json_data = serde_json::to_string(&data).unwrap_or_else(|_| "".to_string());
     match store_json_data(json_data, dest_folder, dest_path.clone()) {
         Ok(_) => (),
         Err(err) => {
-            return Err(format!("Error: failed to extract repository data: {}", err));
+            return Err(format!("Error: failed to extract repository data: {err}"));
         }
     };
 
-    println!(
-        "Extraction completed checkout the `{}` generated.",
-        dest_path
-    );
+    println!("Extraction completed checkout the `{dest_path}` generated.");
     Ok(data)
 }
 
@@ -94,14 +91,11 @@ pub fn convert_data<Data: serde::Serialize>(
     match store_json_data(json_data, dest_folder, dest_path.clone()) {
         Ok(_) => (),
         Err(err) => {
-            return Err(format!("Error: failed to extract repository data: {}", err));
+            return Err(format!("Error: failed to convert extracted data: {err}"));
         }
     };
 
-    println!(
-        "Convertion completed checkout the `{}` generated.",
-        dest_path
-    );
+    println!("Convertion completed checkout the `{dest_path}` generated.");
     Ok(data)
 }
 
@@ -126,7 +120,7 @@ pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Re
     let r = match repo::new_repo_from_url(repo.to_string(), &storage_folder) {
         Ok(r) => r,
         Err(err) => {
-            return Err(format!("Error: {}", err));
+            return Err(format!("Error: {err}"));
         }
     };
     Ok(r)
