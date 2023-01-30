@@ -3,6 +3,7 @@ use super::components::patterns;
 use super::debug;
 use super::systems::movements;
 use super::WorldData;
+use crate::shapes;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use rand::prelude::*;
 
@@ -11,7 +12,7 @@ pub struct ShmupPlugin;
 impl Plugin for ShmupPlugin {
     fn build(&self, app: &mut App) {
         // set GitHub dark mode background color
-        let bg_color: Color = Color::hex("22272d").unwrap();
+        let bg_color: Color = Color::hex("2d333b").unwrap_or_default();
 
         app.insert_resource(ClearColor(bg_color))
             .add_plugin(debug::DebugPlugin)
@@ -44,32 +45,55 @@ fn setup(
     //to the `converters::shmup::Data` struct, so that we know what is the
     //initial scene to display.
     for scene in data.scenes.values() {
-        for entity_id in scene.entities.keys() {
-            spawn_circle(
-                entity_id.to_string(),
-                &mut commands,
-                win,
-                &mut meshes,
-                &mut materials,
-            );
-
-            spawn_hexagon(
-                entity_id.to_string(),
-                &mut commands,
-                win,
-                &mut meshes,
-                &mut materials,
-            );
-
-            spawn_triangle(
-                entity_id.to_string(),
-                &mut commands,
-                win,
-                &mut meshes,
-                &mut materials,
-            );
-
-            spawn_rectangle(entity_id.to_string(), &mut commands, win);
+        for (id, entity) in &scene.entities {
+            let color = entity.color.replace('#', "");
+            match entity.kind.as_str() {
+                shapes::CIRCLE => {
+                    spawn_circle(
+                        id.to_string(),
+                        color,
+                        &mut commands,
+                        win,
+                        &mut meshes,
+                        &mut materials,
+                    );
+                }
+                shapes::RECTANGLE => {
+                    spawn_rectangle(id.to_string(), color, &mut commands, win);
+                }
+                shapes::TRIANGLE => {
+                    spawn_triangle(
+                        id.to_string(),
+                        color,
+                        &mut commands,
+                        win,
+                        &mut meshes,
+                        &mut materials,
+                    );
+                }
+                shapes::HEXAGON => {
+                    spawn_hexagon(
+                        id.to_string(),
+                        color,
+                        &mut commands,
+                        win,
+                        &mut meshes,
+                        &mut materials,
+                    );
+                }
+                _ => {
+                    //we will spawn an hexagon until we have defined
+                    //a different shape for the rest of entity's kind
+                    spawn_hexagon(
+                        id.to_string(),
+                        color,
+                        &mut commands,
+                        win,
+                        &mut meshes,
+                        &mut materials,
+                    );
+                }
+            };
         }
     }
 }
@@ -84,6 +108,7 @@ fn get_random_position(w: f32, h: f32) -> Vec3 {
 
 fn spawn_circle(
     id: String,
+    color: String,
     commands: &mut Commands,
     win: &Window,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -92,7 +117,7 @@ fn spawn_circle(
     commands
         .spawn(MaterialMesh2dBundle {
             mesh: meshes.add(shape::Circle::new(10.).into()).into(),
-            material: materials.add(ColorMaterial::from(Color::PURPLE)),
+            material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
         })
@@ -108,6 +133,7 @@ fn spawn_circle(
 
 fn spawn_hexagon(
     id: String,
+    color: String,
     commands: &mut Commands,
     win: &Window,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -116,7 +142,7 @@ fn spawn_hexagon(
     commands
         .spawn(MaterialMesh2dBundle {
             mesh: meshes.add(shape::RegularPolygon::new(10., 6).into()).into(),
-            material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
+            material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
         })
@@ -132,6 +158,7 @@ fn spawn_hexagon(
 
 fn spawn_triangle(
     id: String,
+    color: String,
     commands: &mut Commands,
     win: &Window,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -140,7 +167,7 @@ fn spawn_triangle(
     commands
         .spawn(MaterialMesh2dBundle {
             mesh: meshes.add(shape::RegularPolygon::new(10., 3).into()).into(),
-            material: materials.add(ColorMaterial::from(Color::ORANGE_RED)),
+            material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
         })
@@ -154,11 +181,11 @@ fn spawn_triangle(
         });
 }
 
-fn spawn_rectangle(id: String, commands: &mut Commands, win: &Window) {
+fn spawn_rectangle(id: String, color: String, commands: &mut Commands, win: &Window) {
     commands
         .spawn(SpriteBundle {
             sprite: Sprite {
-                color: Color::rgb(0.25, 0.25, 0.75),
+                color: Color::hex(color).unwrap_or_default(),
                 custom_size: Some(Vec2::new(20.0, 20.0)),
                 ..default()
             },
