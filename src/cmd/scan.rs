@@ -3,6 +3,7 @@ use crate::converters;
 use crate::extractor;
 use crate::repo;
 use clap::Args;
+use spinners::{Spinner, Spinners};
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
@@ -52,6 +53,7 @@ pub fn extract_data(
     conf: &config::Config,
     git_repo: &repo::Repo,
 ) -> Result<extractor::Data, String> {
+    let mut spin = Spinner::new(Spinners::Line, "Extracting data...".to_string());
     let data = extractor::run(git_repo)?;
     let dest_folder = format!(
         "{}/{}/{}",
@@ -65,6 +67,7 @@ pub fn extract_data(
             return Err(format!("Error: failed to extract repository data: {err}"));
         }
     };
+    spin.stop_with_newline();
 
     println!("Extraction completed checkout the `{dest_path}` generated.");
     Ok(data)
@@ -76,6 +79,7 @@ pub fn convert_data<Data: serde::Serialize>(
     extracted_data: extractor::Data,
     converter: &impl converters::Converter<Data>,
 ) -> Result<Data, String> {
+    let mut spin = Spinner::new(Spinners::Line, "Converting data...".to_string());
     let data = converter.run(&extracted_data)?;
     let dest_folder = format!(
         "{}/{}/{}",
@@ -94,12 +98,14 @@ pub fn convert_data<Data: serde::Serialize>(
             return Err(format!("Error: failed to convert extracted data: {err}"));
         }
     };
+    spin.stop_with_newline();
 
     println!("Convertion completed checkout the `{dest_path}` generated.");
     Ok(data)
 }
 
 pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Repo, String> {
+    let mut spin = Spinner::new(Spinners::Line, "Cloning repository...".to_string());
     //Create the temporary directory if it doesn't exist
     let path = path::Path::new(&conf.wake_path);
     if !path.exists() {
@@ -123,6 +129,7 @@ pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Re
             return Err(format!("Error: {err}"));
         }
     };
+    spin.stop_with_newline();
     Ok(r)
 }
 
