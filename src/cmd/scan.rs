@@ -53,7 +53,7 @@ pub fn extract_data(
     conf: &config::Config,
     git_repo: &repo::Repo,
 ) -> Result<extractor::Data, String> {
-    let mut spin = Spinner::new(Spinners::Dots, "Extracting data...".to_string());
+    let mut spin = Spinner::new(Spinners::Line, "Extracting data...".to_string());
     let data = extractor::run(git_repo)?;
     let dest_folder = format!(
         "{}/{}/{}",
@@ -82,7 +82,7 @@ pub fn convert_data<Data: serde::Serialize>(
     extracted_data: extractor::Data,
     converter: &impl converters::Converter<Data>,
 ) -> Result<Data, String> {
-    let mut spin = Spinner::new(Spinners::Dots, "Converting data...".to_string());
+    let mut spin = Spinner::new(Spinners::Line, "Converting data...".to_string());
     let data = converter.run(&extracted_data)?;
     let dest_folder = format!(
         "{}/{}/{}",
@@ -111,7 +111,7 @@ pub fn convert_data<Data: serde::Serialize>(
 }
 
 pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<repo::Repo, String> {
-    let mut spin = Spinner::new(Spinners::Dots, "Cloning repository...".to_string());
+    let mut spin = Spinner::new(Spinners::Line, "Cloning repository...".to_string());
     //Create the temporary directory if it doesn't exist
     let path = path::Path::new(&conf.wake_path);
     if !path.exists() {
