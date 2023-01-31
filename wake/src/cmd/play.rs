@@ -21,7 +21,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
     let repo = args.repository.clone().unwrap_or_default();
     let player = args.player.clone().unwrap_or_default();
 
-    let mut spin = Spinner::new(Spinners::Dots, "Cloning repository...".to_string());
+    let mut spin = Spinner::new(Spinners::Line, "Cloning repository...".to_string());
     let mut git_repo = match repo::clone_repository(&repo, &conf) {
         Ok(r) => r,
         Err(err) => {
@@ -33,7 +33,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         git_repo.folder_path
     ));
 
-    let mut spin = Spinner::new(Spinners::Dots, "Extracting data...".to_string());
+    let mut spin = Spinner::new(Spinners::Line, "Extracting data...".to_string());
     let extracted_data = match scan::extract_data(&conf, &mut git_repo) {
         Ok(d) => d,
         Err(err) => {
@@ -46,7 +46,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         git_repo.extracted_file_path
     ));
 
-    let mut spin = Spinner::new(Spinners::Dots, "Converting data...".to_string());
+    let mut spin = Spinner::new(Spinners::Line, "Converting data...".to_string());
     let conv = converters::shmup::new();
     if let Err(err) = scan::convert_data(&conf, &mut git_repo, extracted_data, &conv) {
         println!("Error: failed to convert extracted data: {err}");

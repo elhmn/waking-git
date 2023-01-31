@@ -44,7 +44,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         git_repo.extracted_file_path
     ));
 
-    let mut spin = Spinner::new(Spinners::Dots, "Converting data...".to_string());
+    let mut spin = Spinner::new(Spinners::Line, "Converting data...".to_string());
     let conv = converters::shmup::new();
     if let Err(err) = convert_data(&conf, &mut git_repo, extracted_data, &conv) {
         println!("Error: failed to convert extracted data: {err}");
