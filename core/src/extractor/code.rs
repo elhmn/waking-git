@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::path::Path;
 use walkdir::WalkDir;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct FileData {
     pub name: String,
     pub path: String,
@@ -35,7 +35,7 @@ impl Default for FileData {
     }
 }
 
-#[derive(Serialize, Debug, Default)]
+#[derive(Serialize, Clone, Debug, Default)]
 pub struct Code {
     pub repo_name: String,
     pub files_data: HashMap<String, FileData>,
