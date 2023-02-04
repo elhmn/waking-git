@@ -15,6 +15,21 @@
         }
       }
     },
+    "launch-server": {
+      "adapter": "CodeLLDB",
+      "filetypes": ["rust"],
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/target/debug/wake",
+        "args": ["serve", "-p", "3000"],
+        "breakpoints": {
+          "exception": {
+            "cpp_throw": "Y",
+            "cpp_catch": "Y"
+          }
+        }
+      }
+    },
     "attach": {
       "adapter": "CodeLLDB",
       "filetypes": ["rust", "c", "cpp", "jai"],
