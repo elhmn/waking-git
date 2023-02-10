@@ -39,16 +39,18 @@ pub fn clone_repository(repo: &String, conf: &config::Config) -> Result<Repo, St
         };
     }
 
-    let r = match new_repo_from_url(repo.to_string(), &conf.storage_path) {
+    let r = match new_repo_from_url(repo.to_string(), conf) {
         Ok(r) => r,
         Err(err) => {
             return Err(format!("Error: {err}"));
         }
     };
+
     Ok(r)
 }
 
-pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, String> {
+pub fn new_repo_from_url(url: String, conf: &config::Config) -> Result<Repo, String> {
+    let repo_storage = conf.storage_path.to_owned();
     let repo_name: String;
     let repo_owner: String;
     let mut host_name: String;
@@ -103,12 +105,18 @@ pub fn new_repo_from_url(url: String, repo_storage: &String) -> Result<Repo, Str
             }
         }
     };
+    let scanner_path = format!(
+        "{}/{}/{}",
+        conf.wake_path,
+        config::SCANNER_FOLDER_NAME,
+        folder_name
+    );
 
     let repo = Repo {
         repo: git_repo,
         folder_name,
         folder_path: dest_path,
-        scanner_path: "".to_string(),
+        scanner_path,
         extracted_file_path: "".to_string(),
         converted_file_path: "".to_string(),
     };

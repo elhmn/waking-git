@@ -27,7 +27,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
     ));
 
     let mut spin = Spinner::new(Spinners::Line, "Extracting data...".to_string());
-    let (extracted_data, _) = match extractor::extract(&conf, &mut git_repo) {
+    let (extracted_data, _) = match extractor::extract(&mut git_repo) {
         Ok(d) => d,
         Err(err) => {
             println!("Error: failed to extract repository data: {err}");
@@ -41,7 +41,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
 
     let mut spin = Spinner::new(Spinners::Line, "Converting data...".to_string());
     let conv = converters::shmup::new();
-    if let Err(err) = converters::convert(&conf, &mut git_repo, extracted_data, &conv) {
+    if let Err(err) = converters::convert(&mut git_repo, extracted_data, &conv) {
         println!("Error: failed to convert extracted data: {err}");
     };
     spin.stop_with_message(format!(

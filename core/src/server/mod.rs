@@ -1,5 +1,13 @@
 use crate::repo;
-use axum::{http::StatusCode, routing::get, Extension, Json, Router};
+use axum::{
+    body::StreamBody,
+    http::{header, HeaderMap, StatusCode},
+    response::IntoResponse,
+    routing::get,
+    Extension, Json, Router,
+};
+use flate2::write::GzEncoder;
+use flate2::Compression;
 use serde::Deserialize;
 use simple_logger;
 use std::fs::File;
@@ -8,6 +16,7 @@ use std::sync::{
     Arc, Mutex,
 };
 use tar::Builder;
+use tokio_util::io::ReaderStream;
 
 struct Server {
     pub port: String,
@@ -25,6 +34,23 @@ struct Task {
     //it is quite complicated to read at the moment
     pub tx: Mutex<Sender<Result<ScanResult, String>>>,
     pub rx: Mutex<Receiver<Result<ScanResult, String>>>,
+}
+
+impl Task {
+    pub fn new(
+        task: fn(conf: Arc<crate::config::Config>, repo: Arc<String>) -> Result<ScanResult, String>,
+        repo: Arc<String>,
+        conf: Arc<crate::config::Config>,
+    ) -> Self {
+        let (tx, rx) = mpsc::channel();
+        Self {
+            task,
+            repo,
+            conf,
+            tx: Mutex::new(tx),
+            rx: Mutex::new(rx),
+        }
+    }
 }
 
 pub fn run(port: String) {
@@ -79,8 +105,8 @@ async fn serve(server: Arc<Server>) {
     // build our application with a single route
     let app = Router::new()
         .route("/ping", get(ping))
-        .route("/scan/extracted", get(get_extracted))
         .route("/scan", get(get_scan))
+        .route("/scan/extracted", get(get_extracted))
         .route("/scan/converted", get(get_converted))
         .layer(Extension(server.clone()));
 
@@ -100,24 +126,39 @@ struct ScanRequest {
 
 //This example should pretty much show you how to write basic handler
 //with status code and response https://github.com/tokio-rs/axum/blob/main/examples/todos/src/main.rs
-async fn get_scan(Json(payload): Json<ScanRequest>) -> (StatusCode, String) {
+async fn get_scan(
+    server: Extension<Arc<Server>>,
+    Json(payload): Json<ScanRequest>,
+) -> impl IntoResponse {
     let repo = payload.repo_url.unwrap_or_default();
     let conf = crate::config::Config::new();
-    let (_, converted, repo) = match scan(Arc::new(conf), Arc::new(repo)) {
+    let task = Arc::new(Task::new(scan, Arc::new(repo), Arc::new(conf)));
+
+    //Sending the task to the scheduler
+    if let Err(err) = server.tx.lock().unwrap().send(task.clone()) {
+        log::error!("Failed to send task: {}", err);
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to send task".to_owned(),
+        ));
+    };
+
+    //Wait for the scheduler response
+    let (_, _, repo) = match task.rx.lock().unwrap().recv().unwrap() {
         Ok(d) => d,
         Err(err) => {
             log::error!("Failed to scan data: {err}");
-            return (
+            return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Failed to scan data".to_owned(),
-            );
+            ));
         }
     };
 
-    let file = File::create("tmp.tar").unwrap();
+    //Create the tarball
+    let tarball = format!("{}/{}.tar", &repo.scanner_path, &repo.folder_name);
+    let file = File::create(&tarball).unwrap();
     let mut a = Builder::new(file);
-
-    //     a.append_path(repo.extracted_file_path).unwrap();
     a.append_file(
         "converted.json",
         &mut File::open(&repo.converted_file_path).unwrap(),
@@ -129,9 +170,55 @@ async fn get_scan(Json(payload): Json<ScanRequest>) -> (StatusCode, String) {
     )
     .unwrap();
 
+    //Create a Compressed tarball
+    let compressed_tarball = format!("{tarball}.gz");
+    let output_file = File::create(&compressed_tarball).unwrap();
+    let mut encoder = GzEncoder::new(output_file, Compression::default());
+    let mut builder = Builder::new(&mut encoder);
+    builder
+        .append_file(
+            "converted.json",
+            &mut File::open(&repo.converted_file_path).unwrap(),
+        )
+        .unwrap();
+    builder
+        .append_file(
+            "extracted.json",
+            &mut File::open(&repo.extracted_file_path).unwrap(),
+        )
+        .unwrap();
+    builder.finish().unwrap();
+
+    //Sending the tarball to the client
+    let file = match tokio::fs::File::open(&compressed_tarball).await {
+        Ok(file) => file,
+        Err(err) => {
+            log::error!("Failed to open file: {err}");
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to open file".to_owned(),
+            ));
+        }
+    };
+    let stream = ReaderStream::new(file);
+    let body = StreamBody::new(stream);
+    //Setting response headers
+    let mut headers = HeaderMap::new();
+    headers.insert(header::CONTENT_TYPE, "application/gzip".parse().unwrap());
+    headers.insert(header::CONTENT_ENCODING, "gzip".parse().unwrap());
+    //TODO: add a proper content length header
+    headers.insert(
+        header::CONTENT_DISPOSITION,
+        format!(
+            "attachment; filename={}",
+            format_args!("{}.tar.gz", repo.folder_name)
+        )
+        .parse()
+        .unwrap(),
+    );
+
     //TODO: send back tarball of scanned data
-    //the tarball should contain 2 files, extracted.json and converted.json
-    (StatusCode::OK, converted)
+    Ok((StatusCode::OK, headers, body))
 }
 
 async fn get_extracted(
@@ -140,18 +227,7 @@ async fn get_extracted(
 ) -> (StatusCode, String) {
     let repo = payload.repo_url.unwrap_or_default();
     let conf = crate::config::Config::new();
-
-    let (tx, rx) = mpsc::channel();
-
-    //Initialising the task
-    let task = Task {
-        task: scan,
-        tx: Mutex::new(tx),
-        rx: Mutex::new(rx),
-        conf: Arc::new(conf),
-        repo: Arc::new(repo),
-    };
-    let task = Arc::new(task);
+    let task = Arc::new(Task::new(scan, Arc::new(repo), Arc::new(conf)));
 
     //Sending the task to the scheduler
     if let Err(err) = server.tx.lock().unwrap().send(task.clone()) {
@@ -163,9 +239,7 @@ async fn get_extracted(
     }
 
     //Wait for the scheduler response
-    let ret = task.rx.lock().unwrap().recv().unwrap();
-
-    let (extracted, _, _) = match ret {
+    let (extracted, _, _) = match task.rx.lock().unwrap().recv().unwrap() {
         Ok(d) => d,
         Err(err) => {
             log::error!("Failed to extract data: {err}");
@@ -185,18 +259,7 @@ async fn get_converted(
 ) -> (StatusCode, String) {
     let repo = payload.repo_url.unwrap_or_default();
     let conf = crate::config::Config::new();
-
-    let (tx, rx) = mpsc::channel();
-
-    //Initialising the task
-    let task = Task {
-        task: scan,
-        tx: Mutex::new(tx),
-        rx: Mutex::new(rx),
-        conf: Arc::new(conf),
-        repo: Arc::new(repo),
-    };
-    let task = Arc::new(task);
+    let task = Arc::new(Task::new(scan, Arc::new(repo), Arc::new(conf)));
 
     //Sending the task to the scheduler
     if let Err(err) = server.tx.lock().unwrap().send(task.clone()) {
@@ -235,17 +298,16 @@ fn scan(conf: Arc<crate::config::Config>, repo: Arc<String>) -> Result<ScanResul
         }
     };
 
-    let (extracted_data, extracted_json_data) =
-        match crate::extractor::extract(&conf, &mut git_repo) {
-            Ok(d) => d,
-            Err(err) => {
-                return Err(format!("failed to extract repository data: {err}"));
-            }
-        };
+    let (extracted_data, extracted_json_data) = match crate::extractor::extract(&mut git_repo) {
+        Ok(d) => d,
+        Err(err) => {
+            return Err(format!("failed to extract repository data: {err}"));
+        }
+    };
 
     let conv = crate::converters::shmup::new();
     let (_, converted_json_data) =
-        match crate::converters::convert(&conf, &mut git_repo, extracted_data, &conv) {
+        match crate::converters::convert(&mut git_repo, extracted_data, &conv) {
             Ok(d) => d,
             Err(err) => {
                 return Err(format!("failed to convert extracted data: {err}"));

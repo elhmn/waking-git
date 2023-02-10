@@ -10,10 +10,10 @@ fn bench_git_extractor(c: &mut Criterion) {
     test::setup();
     c.bench_function("git extractor", |b| {
         b.iter(|| {
-            let conf = config::Config::new();
-            let storage_folder = format!("{}/{}", conf.wake_path, "repos");
+            let mut conf = config::Config::new();
+            conf.storage_path = format!("{}/{}", conf.wake_path, "repos");
             let url = "https://github.com/osscameroon/osscameroon-website".to_string();
-            let r = match repo::new_repo_from_url(url, &storage_folder) {
+            let r = match repo::new_repo_from_url(url, &conf) {
                 Ok(r) => r,
                 Err(err) => panic!("{err:}"),
             };
@@ -33,10 +33,10 @@ fn bench_code_extractor(c: &mut Criterion) {
     test::setup();
     c.bench_function("code extractor", |b| {
         b.iter(|| {
-            let conf = config::Config::new();
-            let storage_folder = format!("{}/{}", conf.wake_path, "repos");
+            let mut conf = config::Config::new();
+            conf.storage_path = format!("{}/{}", conf.wake_path, "repos");
             let url = "https://github.com/osscameroon/osscameroon-website".to_string();
-            let r = match repo::new_repo_from_url(url, &storage_folder) {
+            let r = match repo::new_repo_from_url(url, &conf) {
                 Ok(r) => r,
                 Err(err) => panic!("{err:}"),
             };
