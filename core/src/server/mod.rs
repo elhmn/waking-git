@@ -8,7 +8,7 @@ use axum::{
 };
 use flate2::write::GzEncoder;
 use flate2::Compression;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use simple_logger;
 use std::fs::File;
 use std::sync::{
@@ -117,11 +117,11 @@ async fn serve(server: Arc<Server>) {
         .unwrap();
 }
 
-#[derive(Deserialize)]
-struct ScanRequest {
-    repo_url: Option<String>,
+#[derive(Deserialize, Serialize)]
+pub struct ScanRequest {
+    pub repo_url: Option<String>,
     //TODO: add ref
-    _ref_: Option<String>,
+    pub _ref_: Option<String>,
 }
 
 //This example should pretty much show you how to write basic handler
