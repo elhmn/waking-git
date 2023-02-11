@@ -1,5 +1,5 @@
 use assert_cmd::prelude::*;
-use lib::utils::test;
+use core::utils::test;
 // Add methods on commands
 use predicates::prelude::*; // Used for writing assertions
 use std::process::Command; // Run programs
@@ -11,7 +11,7 @@ fn should_work_correctly() -> Result<(), Box<dyn std::error::Error>> {
     let url = "https://github.com/elhmn/ckp";
 
     let mut cmd = Command::cargo_bin("wake")?;
-    cmd.arg("play").arg(url);
+    cmd.arg("play").arg("shmup").arg(url);
 
     //Test that the player is running
     cmd.assert()

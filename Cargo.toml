@@ -1,59 +1,7 @@
-[package]
-name = "wake"
-version = "0.1.0"
-edition = "2021"
-
-[lib]
-name = "lib"
-path = "src/lib.rs"
-
-[[bin]]
-name = "wake"
-path = "src/main.rs"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-clap = { version = "4.0.23", features = ["derive"] }
-git2 = "0.15.0"
-url = "2.3.1"
-walkdir = "2.3.2"
-rust-code-analysis = "0.0.24"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_yaml = "0.9"
-serde_with = { version = "2.0.0"}
-home = "0.5.4"
-
-#for fast compilation of
-# your program consider using the dynamic feature,
-# with `--features bevy/dynamic` flags.
-# example: cargo run --features bevy/dynamic
-# This does not, work on windows.
-# Find out more https://docs.rs/bevy_dylib/latest/bevy_dylib/#the-recommended-way
-# and https://docs.rs/bevy_dylib/latest/bevy_dylib/#the-recommended-way
-bevy = { version = "0.9.0" }
-bevy-inspector-egui = "0.15.0"
-rand = "0.8.5"
-sha2 = "0.10.6"
-data-encoding = "2.3.3"
-rayon = "1.6.1"
-spinners = "4.1.0"
-
-[dev-dependencies]
-assert_cmd = "2.0"
-predicates = "2.1"
-criterion = "0.4"
-
-# Enable a small amount of optimization in debug mode
-# Debug mode can be very slow
-[profile.dev]
-opt-level = 1
-
-# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-[profile.dev.package."*"]
-opt-level = 3
-
-[[bench]]
-name = "benches"
-harness = false
+[workspace]
+members = [
+	"wake",
+	"players",
+	"core",
+]
+resolver="2"

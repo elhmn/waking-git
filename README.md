@@ -28,23 +28,21 @@ In order to run `waking-git` you need to [install](https://www.rust-lang.org/too
 **How to scan a repository ?**
 
 ```console
-$ cargo run scan https://github.com/elhmn/ckp
+$ cargo run -p wake -- scan https://github.com/elhmn/waking-git
 ```
 
-Or use the `bevy` dynamic library
+**How to play ?**
+
+First make sure to build and install the players using the following command:
+
 ```console
-$ cargo run --features bevy/dynamic scan https://github.com/elhmn/ckp
+$ make build-players && make install-players
 ```
 
-**How to play ?** ***(To edit as the project evolve)***
+Then you can run the player using the following command:
 
 ```console
-$ cargo run play
-```
-
-Or use the `bevy` dynamic library
-```console
-$ cargo run --features bevy/dynamic play
+$ cargo run -p wake -- play shmup https://github.com/elhmn/waking-git
 ```
 
 ### How to test ?
@@ -75,14 +73,33 @@ You can run `make` OR `make help` to find out more commands
 ```console
 $ make
  You can build `wake` using `make build`
- or run it using `cargo run scan https://github.com/elhmn/ckp`
+ or run an example using `make run`
 
  Choose a command...
-  build           build application binary.
-  test            run tests
-  lint            run linter over the entire code base
-  fmt             check your code format
-  install-hooks   install local git hooks
+  build             build application binary.
+  run               run an example.
+  build-wake        build wake binary.
+  install-players   install players binary.
+  build-players     build players binary.
+  test              run tests
+  lint              run linter over the entire code base
+  lint-players      run linter over the players workspace
+  lint-wake         run linter over the wake workspace
+  fmt               check your code format
+  install-hooks     install local git hooks
+
+You could run it using cargo commands directly
+
+Make sure to build and install the player before running it:
+`make build-players ; make install-players`
+
+Then run: `cargo run -p wake -- play shmup https://github.com/elhmn/waking-git`
+
+Scan a repo:
+`cargo run -p wake -- scan https://github.com/elhmn/waking-git`
+
+Run the player:
+`cargo run -p players -- shmup /Users/elhmn/.wake/scanner/github-com-elhmn-waking-git/shmup-converted.json`
 ```
 
 ## Resources

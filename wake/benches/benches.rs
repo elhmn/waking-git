@@ -1,9 +1,9 @@
+use core::config;
+use core::extractor::code;
+use core::extractor::git;
+use core::repo;
+use core::utils::test;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use lib::config;
-use lib::extractor::code;
-use lib::extractor::git;
-use lib::repo;
-use lib::utils::test;
 use std::time::Duration;
 
 fn bench_git_extractor(c: &mut Criterion) {
