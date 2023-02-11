@@ -5,6 +5,9 @@ BIN_PATH = ~/$(WAKE_FOLDER)/bin
 PLAYERS_BIN_PATH = ~/$(WAKE_FOLDER)/bin/players
 PLAYERS_TARGET = ./target/debug/players
 WAKE_TARGET = ./target/debug/wake
+# The test server port is used when running tests on the
+#  `wake serve -p <port>` command.
+TEST_SERVER_PORT = 4242
 
 ## build: build application binary.
 .PHONY: build
@@ -47,7 +50,8 @@ endif
 ## test: run tests
 .PHONY: test
 test: install-deps
-	cargo test -- --test-threads 1
+	lsof -i :$(TEST_SERVER_PORT) | grep LISTEN | awk '{print $$2}' | xargs kill -9
+	SERVER_PORT=$(TEST_SERVER_PORT) cargo test -- --test-threads 1
 
 ## lint: run linter over the entire code base
 .PHONY: lint

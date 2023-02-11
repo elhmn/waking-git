@@ -5,13 +5,16 @@ use core::utils::test::TMP_DIR;
 use reqwest;
 use std::process::{Child, Command};
 
+const SERVER_PORT: &str = "4242";
+
 fn start_server() -> Child {
     let mut cmd = Command::cargo_bin("wake").unwrap();
+    let port = std::env::var("SERVER_PORT").unwrap_or(SERVER_PORT.to_string());
     let child = cmd
         .current_dir(TMP_DIR)
         .arg("serve")
         .arg("--port")
-        .arg("4242")
+        .arg(port)
         .spawn()
         .unwrap();
 
