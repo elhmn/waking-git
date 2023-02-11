@@ -31,7 +31,15 @@ In order to run `waking-git` you need to [install](https://www.rust-lang.org/too
 $ cargo run -p wake -- scan https://github.com/elhmn/waking-git
 ```
 
-**How to play ?** ***(To edit as the project evolve)***
+**How to play ?**
+
+First make sure to build and install the players using the following command:
+
+```console
+$ make build-players && make install-players
+```
+
+Then you can run the player using the following command:
 
 ```console
 $ cargo run -p wake -- play shmup https://github.com/elhmn/waking-git
