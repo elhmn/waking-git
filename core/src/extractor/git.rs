@@ -1,10 +1,10 @@
 use crate::hash;
 use crate::repo;
 use git2::{self, Repository, TreeEntry};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub enum ObjectKind {
     Blob,
     Tree,
@@ -18,10 +18,10 @@ pub enum ObjectKind {
 //and use the output to populate the metrics
 //it is a little bit more involved and can be done
 //a later on
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Metrics {}
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Blob {
     pub filemode: i32,
     pub name: String,
@@ -36,7 +36,7 @@ pub struct Blob {
     pub sha: String,
 }
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Tree {
     pub name: String,
     //path is the path to the file/directory relative
@@ -54,7 +54,7 @@ pub struct Tree {
     pub objects: Vec<String>,
 }
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Tag {
     pub name: String,
     pub message: String,
@@ -66,7 +66,7 @@ pub struct Tag {
     pub commit_sha: String,
 }
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Commit {
     //sha the git object hash
     pub sha: String,
@@ -79,7 +79,7 @@ pub struct Commit {
     pub parents: Vec<String>,
 }
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Object {
     pub kind: ObjectKind,
 
@@ -93,7 +93,7 @@ pub struct Object {
     pub commit: Option<Commit>,
 }
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Git {
     pub metrics: Metrics,
     pub objects: HashMap<String, Object>,

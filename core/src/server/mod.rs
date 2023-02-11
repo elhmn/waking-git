@@ -224,7 +224,7 @@ async fn get_scan(
 async fn get_extracted(
     server: Extension<Arc<Server>>,
     Json(payload): Json<ScanRequest>,
-) -> (StatusCode, String) {
+) -> impl IntoResponse {
     let repo = payload.repo_url.unwrap_or_default();
     let conf = crate::config::Config::new();
     let task = Arc::new(Task::new(scan, Arc::new(repo), Arc::new(conf)));
@@ -232,10 +232,10 @@ async fn get_extracted(
     //Sending the task to the scheduler
     if let Err(err) = server.tx.lock().unwrap().send(task.clone()) {
         log::error!("Failed to send task: {}", err);
-        return (
+        return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             "Failed to send task".to_owned(),
-        );
+        ));
     }
 
     //Wait for the scheduler response
@@ -243,20 +243,23 @@ async fn get_extracted(
         Ok(d) => d,
         Err(err) => {
             log::error!("Failed to extract data: {err}");
-            return (
+            return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Failed to extract data".to_owned(),
-            );
+            ));
         }
     };
 
-    (StatusCode::OK, extracted)
+    let mut headers = HeaderMap::new();
+    headers.insert(header::CONTENT_TYPE, "application/json".parse().unwrap());
+
+    Ok((StatusCode::OK, headers, extracted))
 }
 
 async fn get_converted(
     server: Extension<Arc<Server>>,
     Json(payload): Json<ScanRequest>,
-) -> (StatusCode, String) {
+) -> impl IntoResponse {
     let repo = payload.repo_url.unwrap_or_default();
     let conf = crate::config::Config::new();
     let task = Arc::new(Task::new(scan, Arc::new(repo), Arc::new(conf)));
@@ -264,10 +267,10 @@ async fn get_converted(
     //Sending the task to the scheduler
     if let Err(err) = server.tx.lock().unwrap().send(task.clone()) {
         log::error!("Failed to send task: {}", err);
-        return (
+        return Err((
             StatusCode::INTERNAL_SERVER_ERROR,
             "Failed to send task".to_owned(),
-        );
+        ));
     }
 
     //Wait for the scheduler response
@@ -276,14 +279,17 @@ async fn get_converted(
         Ok(d) => d,
         Err(err) => {
             log::error!("Failed to convert data: {err}");
-            return (
+            return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Failed to convert data".to_owned(),
-            );
+            ));
         }
     };
 
-    (StatusCode::OK, converted)
+    let mut headers = HeaderMap::new();
+    headers.insert(header::CONTENT_TYPE, "application/json".parse().unwrap());
+
+    Ok((StatusCode::OK, headers, converted))
 }
 
 async fn ping() -> &'static str {

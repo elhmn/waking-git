@@ -1,19 +1,37 @@
 use crate::hash;
 use crate::repo::Repo;
-use rust_code_analysis::{get_function_spaces, read_file, FuncSpace, SpaceKind, LANG};
-use serde::Serialize;
+use rust_code_analysis::{get_function_spaces, read_file, CodeMetrics, FuncSpace, SpaceKind, LANG};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 use walkdir::WalkDir;
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct FileData {
     pub name: String,
     pub path: String,
     pub extension: String,
     pub language: String,
     // Contains data about the code from rust_code_analysis
+    // We need to skip_deserializing here because `FuncSpace` does not implement
+    // Deserialize
+    #[serde(skip_deserializing)]
+    // skip_deserializing does not work well on the `spaces` field because
+    // `FuncSpace` does not implement `Default`, forcing us set a default
+    #[serde(default = "default_func_spaces")]
     pub spaces: FuncSpace,
+}
+
+/// This function will be called when the default value of `spaces` is needed
+pub fn default_func_spaces() -> FuncSpace {
+    FuncSpace {
+        name: Some("".to_string()),
+        start_line: 0,
+        end_line: 0,
+        kind: SpaceKind::Function,
+        spaces: Vec::new(),
+        metrics: CodeMetrics::default(),
+    }
 }
 
 impl Default for FileData {
@@ -35,7 +53,7 @@ impl Default for FileData {
     }
 }
 
-#[derive(Serialize, Clone, Debug, Default)]
+#[derive(Deserialize, Serialize, Clone, Debug, Default)]
 pub struct Code {
     pub repo_name: String,
     pub files_data: HashMap<String, FileData>,

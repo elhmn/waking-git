@@ -3,9 +3,9 @@ pub mod git;
 use crate::config;
 use crate::repo;
 use crate::utils;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Clone, Default)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Data {
     pub git: git::Git,
     pub code: code::Code,

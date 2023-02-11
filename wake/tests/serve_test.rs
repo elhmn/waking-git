@@ -1,7 +1,7 @@
 use assert_cmd::prelude::*;
-use core::server;
 use core::utils::test;
 use core::utils::test::TMP_DIR;
+use core::{converters::shmup, extractor, server};
 use reqwest;
 use std::process::{Child, Command};
 
@@ -63,6 +63,14 @@ fn get_scan_extracted() -> Result<(), Box<dyn std::error::Error>> {
             .unwrap();
 
         assert_eq!(resp.status().is_success(), true);
+        assert_eq!(
+            resp.headers().get("content-type").unwrap(),
+            "application/json"
+        );
+        //Deserialise the response body in a extractor::Data struct
+        let body = resp.text().unwrap();
+        //Should panic if the response body is wrong
+        let _data: extractor::Data = serde_json::from_str(&body).unwrap();
     }
 
     //test that /scan/extracted with wrong body returns 500
@@ -114,6 +122,14 @@ fn get_scan_converted() -> Result<(), Box<dyn std::error::Error>> {
             .unwrap();
 
         assert_eq!(resp.status().is_success(), true);
+        assert_eq!(
+            resp.headers().get("content-type").unwrap(),
+            "application/json"
+        );
+        //Deserialise the response body in a convertor::Data struct
+        let body = resp.text().unwrap();
+        //Should panic if the response body is wrong
+        let _data: shmup::Data = serde_json::from_str(&body).unwrap();
     }
 
     //test that /scan/extracted with wrong body returns 500
@@ -165,6 +181,16 @@ fn get_scan() -> Result<(), Box<dyn std::error::Error>> {
             .unwrap();
 
         assert_eq!(resp.status().is_success(), true);
+        assert_eq!(
+            resp.headers().get("content-type").unwrap(),
+            "application/gzip"
+        );
+        assert_eq!(resp.headers().get("content-encoding").unwrap(), "gzip");
+        //assert header content-disposition
+        assert_eq!(
+            resp.headers().get("content-disposition").unwrap(),
+            "attachment; filename=github-com-elhmn-ckp.tar.gz"
+        );
     }
 
     //test that /scan with wrong body returns 500
