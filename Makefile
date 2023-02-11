@@ -50,7 +50,7 @@ endif
 ## test: run tests
 .PHONY: test
 test: install-deps
-	lsof -i :$(TEST_SERVER_PORT) | grep LISTEN | awk '{print $$2}' | xargs kill -9
+	-lsof -i :$(TEST_SERVER_PORT) | grep LISTEN | awk '{print $$2}' | xargs kill -9
 	SERVER_PORT=$(TEST_SERVER_PORT) cargo test -- --test-threads 1
 
 ## lint: run linter over the entire code base
