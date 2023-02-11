@@ -92,4 +92,4 @@ help: Makefile
 	@echo "\`"cargo run -p wake -- scan https://github.com/elhmn/waking-git"\`"
 	@echo ""
 	@echo "Run the player:"
-	@echo "\`"cargo run -p players -- play ~/.wake/scanner/github-com-elhmn-waking-git/shmup-converted.json"\`"
+	@echo "\`"cargo run -p players -- shmup ~/.wake/scanner/github-com-elhmn-waking-git/shmup-converted.json"\`"
