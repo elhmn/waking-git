@@ -75,17 +75,23 @@ $ make
   build-players     build players binary.
   test              run tests
   lint              run linter over the entire code base
+  lint-players      run linter over the players workspace
+  lint-wake         run linter over the wake workspace
   fmt               check your code format
   install-hooks     install local git hooks
 
 You could run it using cargo commands directly
-For example: `cargo run -p wake -- play shmup https://github.com/elhmn/waking-git`
+
+Make sure to build and install the player before running it:
+`make build-players ; make install-players`
+
+Then run: `cargo run -p wake -- play shmup https://github.com/elhmn/waking-git`
 
 Scan a repo:
 `cargo run -p wake -- scan https://github.com/elhmn/waking-git`
 
 Run the player:
-`cargo run -p players -- play /Users/elhmn/.wake/scanner/github-com-elhmn-waking-git/shmup-converted.json`
+`cargo run -p players -- shmup /Users/elhmn/.wake/scanner/github-com-elhmn-waking-git/shmup-converted.json`
 ```
 
 ## Resources
