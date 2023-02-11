@@ -86,7 +86,11 @@ help: Makefile
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo ""
 	@echo "You could run it using cargo commands directly"
-	@echo "For example: \`"cargo run -p wake -- play shmup https://github.com/elhmn/waking-git"\`"
+	@echo ""
+	@echo "Make sure to build and install the player before running it:"
+	@echo "\`"make build-players \; make install-players"\`"
+	@echo ""
+	@echo "Then run: \`"cargo run -p wake -- play shmup https://github.com/elhmn/waking-git"\`"
 	@echo ""
 	@echo "Scan a repo:"
 	@echo "\`"cargo run -p wake -- scan https://github.com/elhmn/waking-git"\`"
