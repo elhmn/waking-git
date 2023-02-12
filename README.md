@@ -96,6 +96,7 @@ $ make
  Choose a command...
   build             build application binary.
   run               run an example.
+  serve             start the wake server.
   build-wake        build wake binary.
   install-players   install players binary.
   build-players     build players binary.
