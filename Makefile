@@ -19,6 +19,11 @@ build: install-players
 run: install-players
 	cargo run -p wake -- play shmup https://github.com/osscameroon/osscameroon-website
 
+## serve: start the wake server.
+.PHONY: serve
+serve:
+	cargo run -p wake -- serve -p 3000
+
 ## build-wake: build wake binary.
 .PHONY: build-wake
 build-wake: $(WAKE_TARGET)

@@ -45,6 +45,24 @@ Then you can run the player using the following command:
 $ cargo run -p wake -- play shmup https://github.com/elhmn/waking-git
 ```
 
+How to run the server ?
+
+```console
+$ cargo run -p wake serve -p 3000
+```
+
+You could request data from the server using the following command:
+```console
+$ curl -X GET -vsS -d '{"repo_url": "https://github.com/elhmn/cgit"}' \
+	-H 'Content-Type: application/json' localhost:3000/scan/extracted | jq
+```
+
+The server supports the following routes:
+
+- `GET /scan/extracted` - Extract data from a repository
+- `GET /scan/converted` - Convert extracted data to a world representation
+- `GET /scan` - Scan a repository and return a tarball containing extracted and converted data
+
 ### How to test ?
 
 Run the entire test suite using,
