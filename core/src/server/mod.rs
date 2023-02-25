@@ -154,7 +154,7 @@ async fn get_scan(
         }
     };
 
-    //Create the tarball
+    //Create a compressed tarball
     let tarball = format!("{}/{}.tar", &repo.scanner_path, &repo.folder_name);
     let file = File::create(&tarball).unwrap();
     let mut a = Builder::new(file);
@@ -188,7 +188,7 @@ async fn get_scan(
         .unwrap();
     builder.finish().unwrap();
 
-    //Sending the tarball to the client
+    //Sending the compressed tarball to the client
     let file = match tokio::fs::File::open(&compressed_tarball).await {
         Ok(file) => file,
         Err(err) => {
