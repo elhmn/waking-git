@@ -110,7 +110,6 @@ async fn serve(server: Arc<Server>) {
         .route("/scan/converted", get(get_converted))
         .layer(Extension(server.clone()));
 
-    // run it with hyper on localhost:3000
     axum::Server::bind(&format!("0.0.0.0:{}", server.port).parse().unwrap())
         .serve(app.into_make_service())
         .await
