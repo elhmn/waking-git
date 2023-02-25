@@ -51,7 +51,7 @@ impl converters::Converter<Data> for ShmupConverter {
     }
 
     fn name(&self) -> String {
-        CONVERTER_NAME.to_string()
+        CONVERTER_NAME.to_owned()
     }
 }
 
@@ -68,8 +68,8 @@ fn build_converter_data(extracted_data: &extractor::Data) -> Data {
 
     //Get the initial commit
     if let Some(commit) = &objs[commit_oid].commit {
-        let trees_oid = vec![commit.tree.clone()];
-        add_scenes(&trees_oid, mut_data.clone(), objs, files);
+        let trees_oid = vec![commit.tree.to_owned()];
+        add_scenes(&trees_oid, mut_data.to_owned(), objs, files);
     }
 
     let data = mut_data.lock().unwrap().to_owned();
@@ -92,18 +92,21 @@ fn add_scenes(
             for oid in &tree.objects {
                 if let Some(blob) = &objs[oid].blob {
                     let mut entity = blob_to_entity(blob, files);
-                    entity.scene_id = oid.clone();
-                    scene.entities.insert(oid.clone(), entity);
+                    entity.scene_id = oid.to_owned();
+                    scene.entities.insert(oid.to_owned(), entity);
                 } else {
-                    scene.sub_scenes.push(oid.clone());
+                    scene.sub_scenes.push(oid.to_owned());
                 }
             }
 
             if !scene.sub_scenes.is_empty() {
-                add_scenes(&scene.sub_scenes, data.clone(), objs, files);
+                add_scenes(&scene.sub_scenes, data.to_owned(), objs, files);
             }
 
-            data.lock().unwrap().scenes.insert(tree.sha.clone(), scene);
+            data.lock()
+                .unwrap()
+                .scenes
+                .insert(tree.sha.to_owned(), scene);
         }
     });
 }
@@ -114,8 +117,8 @@ fn blob_to_entity(
 ) -> Entity {
     let languages = languages::new();
     Entity {
-        id: blob.sha.clone(),
-        name: blob.name.clone(),
+        id: blob.sha.to_owned(),
+        name: blob.name.to_owned(),
         color: get_color(blob, &languages),
         kind: get_kind(blob, &languages),
         speed: get_speed(blob, files),
@@ -156,19 +159,19 @@ fn get_color(blob: &extractor::git::Blob, languages: &languages::Languages) -> S
         return languages::color_from_extension(languages, &converted_extension);
     }
 
-    "".to_string()
+    "".to_owned()
 }
 
 /// returns the kind of language file the blob is
 fn get_kind(blob: &extractor::git::Blob, languages: &languages::Languages) -> String {
     let p = Path::new(blob.path.as_str());
-    let mut kind = "".to_string();
+    let mut kind = "".to_owned();
     if let Some(ext) = p.extension() {
         let converted_extension = format!(".{}", ext.to_string_lossy().into_owned());
         kind = languages::kind_from_extension(languages, &converted_extension);
     }
 
-    kind_to_shape(kind.as_str()).to_string()
+    kind_to_shape(kind.as_str()).to_owned()
 }
 
 /// convert a kind to a known shape that will be used by the

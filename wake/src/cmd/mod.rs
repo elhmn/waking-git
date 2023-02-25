@@ -1,5 +1,6 @@
 pub mod play;
 pub mod scan;
+pub mod serve;
 
 use clap::{Parser, Subcommand};
 use core::config;
@@ -10,6 +11,8 @@ enum Commands {
     Scan(scan::RunArgs),
     /// play generate a playable/simulated world
     Play(play::RunArgs),
+    /// run an http server to serve world data
+    Serve(serve::RunArgs),
 }
 
 /// `Wake` git repository world generator
@@ -29,6 +32,9 @@ pub fn run(conf: config::Config) {
         }
         Commands::Play(args) => {
             play::run(args, conf);
+        }
+        Commands::Serve(args) => {
+            serve::run(args, conf);
         }
     }
 }
