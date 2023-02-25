@@ -216,7 +216,6 @@ async fn get_scan(
         .unwrap(),
     );
 
-    //TODO: send back tarball of scanned data
     Ok((StatusCode::OK, headers, body))
 }
 
