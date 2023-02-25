@@ -284,7 +284,7 @@ fn scan(conf: Arc<crate::config::Config>, repo: Arc<String>) -> Result<ScanResul
     let mut git_repo = match crate::repo::clone_repository(&repo, &conf) {
         Ok(r) => r,
         Err(err) => {
-            return Err(format!("while cloning repository: {err}"));
+            return Err(format!("failed to clone repository: {err}"));
         }
     };
 
