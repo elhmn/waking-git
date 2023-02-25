@@ -156,20 +156,6 @@ async fn get_scan(
 
     //Create a compressed tarball
     let tarball = format!("{}/{}.tar", &repo.scanner_path, &repo.folder_name);
-    let file = File::create(&tarball).unwrap();
-    let mut a = Builder::new(file);
-    a.append_file(
-        "converted.json",
-        &mut File::open(&repo.converted_file_path).unwrap(),
-    )
-    .unwrap();
-    a.append_file(
-        "extracted.json",
-        &mut File::open(&repo.extracted_file_path).unwrap(),
-    )
-    .unwrap();
-
-    //Create a Compressed tarball
     let compressed_tarball = format!("{tarball}.gz");
     let output_file = File::create(&compressed_tarball).unwrap();
     let mut encoder = GzEncoder::new(output_file, Compression::default());
