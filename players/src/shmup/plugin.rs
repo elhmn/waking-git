@@ -35,66 +35,56 @@ fn setup(
     let data = &world_data.0;
     commands.spawn(Camera2dBundle::default());
 
-    //The scenes are traversed in a random order,
-    //which means that the first scene displayed will be different
-    //every time we run the program.
-    //This also means that the first scene won't correspond to
-    //the git repository root tree.
-    //
-    //To solve that we will later have to add a `data.root_scene` field
-    //to the `converters::shmup::Data` struct, so that we know what is the
-    //initial scene to display.
-    for scene in data.scenes.values() {
-        for (id, entity) in &scene.entities {
-            let color = entity.color.replace('#', "");
-            match entity.kind.as_str() {
-                shapes::CIRCLE => {
-                    spawn_circle(
-                        id.to_string(),
-                        color,
-                        &mut commands,
-                        win,
-                        &mut meshes,
-                        &mut materials,
-                    );
-                }
-                shapes::RECTANGLE => {
-                    spawn_rectangle(id.to_string(), color, &mut commands, win);
-                }
-                shapes::TRIANGLE => {
-                    spawn_triangle(
-                        id.to_string(),
-                        color,
-                        &mut commands,
-                        win,
-                        &mut meshes,
-                        &mut materials,
-                    );
-                }
-                shapes::HEXAGON => {
-                    spawn_hexagon(
-                        id.to_string(),
-                        color,
-                        &mut commands,
-                        win,
-                        &mut meshes,
-                        &mut materials,
-                    );
-                }
-                _ => {
-                    //we will spawn an hexagon until we have defined
-                    //a different shape for the rest of entity's kind
-                    spawn_hexagon(
-                        id.to_string(),
-                        color,
-                        &mut commands,
-                        win,
-                        &mut meshes,
-                        &mut materials,
-                    );
-                }
-            };
-        }
+    let main_scene = &data.scenes[&data.main_scene];
+    for (id, entity) in &main_scene.entities {
+        let color = entity.color.replace('#', "");
+        match entity.kind.as_str() {
+            shapes::CIRCLE => {
+                spawn_circle(
+                    id.to_string(),
+                    color,
+                    &mut commands,
+                    win,
+                    &mut meshes,
+                    &mut materials,
+                );
+            }
+            shapes::RECTANGLE => {
+                spawn_rectangle(id.to_string(), color, &mut commands, win);
+            }
+            shapes::TRIANGLE => {
+                spawn_triangle(
+                    id.to_string(),
+                    color,
+                    &mut commands,
+                    win,
+                    &mut meshes,
+                    &mut materials,
+                );
+            }
+            shapes::HEXAGON => {
+                spawn_hexagon(
+                    id.to_string(),
+                    color,
+                    &mut commands,
+                    win,
+                    &mut meshes,
+                    &mut materials,
+                );
+            }
+            _ => {
+                //we will spawn an hexagon until we have defined
+                //a different shape for the rest of entity's kind
+                spawn_hexagon(
+                    id.to_string(),
+                    color,
+                    &mut commands,
+                    win,
+                    &mut meshes,
+                    &mut materials,
+                );
+            }
+        };
     }
 }
 
