@@ -9,7 +9,7 @@ pub struct Pattern1 {
 }
 
 /// Pattern2 defines a movement pattern
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Default)]
 pub struct Pattern2 {
     pub speed: f32,
 }

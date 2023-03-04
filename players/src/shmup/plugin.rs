@@ -1,7 +1,9 @@
 use super::components::cell;
 use super::components::patterns;
+use super::components::player;
 use super::debug;
 use super::systems::movements;
+use super::systems::player as player_systems;
 use super::WorldData;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use core::shapes;
@@ -20,7 +22,9 @@ impl Plugin for ShmupPlugin {
             .add_startup_system(movements::pattern_3_init)
             .add_system(movements::movement_pattern_1)
             .add_system(movements::movement_pattern_2)
-            .add_system(movements::movement_pattern_3);
+            .add_system(movements::movement_pattern_3)
+            .add_system(player_systems::movement)
+            .add_system(player_systems::keyboad_input);
     }
 }
 
@@ -35,6 +39,10 @@ fn setup(
     let data = &world_data.0;
     commands.spawn(Camera2dBundle::default());
 
+    // Spawn the player before anything else
+    spawn_player(&mut commands, &mut meshes, &mut materials);
+
+    //Spawn ennemies
     let main_scene = &data.scenes[&data.main_scene];
     for (id, entity) in &main_scene.entities {
         let color = entity.color.replace('#', "");
@@ -86,6 +94,30 @@ fn setup(
             }
         };
     }
+}
+
+fn spawn_player(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<ColorMaterial>>,
+) {
+    let color = "ffffff";
+    commands
+        .spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(shape::RegularPolygon::new(20., 8).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
+            transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
+            ..default()
+        })
+        .insert(player::Player {
+            speed: 25.,
+            hp: 100.,
+        })
+        .insert(player::Velocity { x: 0.1, y: 0.1 })
+        .insert(cell::Cell {
+            name: "player".to_string(),
+            ..Default::default()
+        });
 }
 
 fn get_random_position(w: f32, h: f32) -> Vec3 {
