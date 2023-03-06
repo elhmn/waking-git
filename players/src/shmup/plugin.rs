@@ -1,9 +1,11 @@
+use super::components::camera;
 use super::components::cell;
 use super::components::patterns;
 use super::components::player;
 use super::debug;
 use super::systems::movements;
 use super::systems::player as player_systems;
+use super::systems::player_bullet;
 use super::WorldData;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use core::shapes;
@@ -24,7 +26,10 @@ impl Plugin for ShmupPlugin {
             .add_system(movements::movement_pattern_2)
             .add_system(movements::movement_pattern_3)
             .add_system(player_systems::movement)
-            .add_system(player_systems::keyboad_input);
+            .add_system(player_systems::keyboad_input)
+            .add_system(player_systems::mouse_input)
+            .add_system(player_bullet::movement)
+            .add_system(player_bullet::despawn);
     }
 }
 
@@ -37,7 +42,9 @@ fn setup(
 ) {
     let win = windows.primary();
     let data = &world_data.0;
-    commands.spawn(Camera2dBundle::default());
+    commands
+        .spawn(Camera2dBundle::default())
+        .insert(camera::MainCamera);
 
     // Spawn the player before anything else
     spawn_player(&mut commands, &mut meshes, &mut materials);
@@ -138,7 +145,7 @@ fn spawn_circle(
 ) {
     commands
         .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::Circle::new(10.).into()).into(),
+            mesh: meshes.add(shape::Circle::new(20.).into()).into(),
             material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
@@ -163,7 +170,7 @@ fn spawn_hexagon(
 ) {
     commands
         .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::RegularPolygon::new(10., 6).into()).into(),
+            mesh: meshes.add(shape::RegularPolygon::new(20., 6).into()).into(),
             material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
@@ -188,7 +195,7 @@ fn spawn_triangle(
 ) {
     commands
         .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::RegularPolygon::new(10., 3).into()).into(),
+            mesh: meshes.add(shape::RegularPolygon::new(20., 3).into()).into(),
             material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
@@ -208,7 +215,7 @@ fn spawn_rectangle(id: String, color: String, commands: &mut Commands, win: &Win
         .spawn(SpriteBundle {
             sprite: Sprite {
                 color: Color::hex(color).unwrap_or_default(),
-                custom_size: Some(Vec2::new(20.0, 20.0)),
+                custom_size: Some(Vec2::new(40.0, 40.0)),
                 ..default()
             },
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
