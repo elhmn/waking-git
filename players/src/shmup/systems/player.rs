@@ -1,3 +1,4 @@
+use std::time::Duration;
 use super::super::components::camera;
 use super::super::components::player;
 use super::super::components::player_bullet::Bullet;
@@ -50,13 +51,14 @@ pub fn mouse_input(
     mut materials: ResMut<Assets<ColorMaterial>>,
     windows: Res<Windows>,
     mouse: Res<Input<MouseButton>>,
-    mut query: Query<&Transform, With<player::Player>>,
+    time: Res<Time>,
+    mut query: Query<(&Transform, &mut player::Gun), With<player::Player>>,
     cam: Query<(&Camera, &GlobalTransform), With<camera::MainCamera>>,
 ) {
     let win = windows.primary();
     let (camera, camera_transform) = cam.single();
 
-    if let Ok(transform) = query.get_single_mut() {
+    if let Ok((transform, mut gun)) = query.get_single_mut() {
         if mouse.pressed(MouseButton::Left) {
             let pos = win
                 .cursor_position()
@@ -71,19 +73,24 @@ pub fn mouse_input(
             );
             direction = direction.normalize();
 
-            commands
-                .spawn(MaterialMesh2dBundle {
-                    mesh: meshes.add(shape::Circle::new(10.).into()).into(),
-                    material: materials.add(ColorMaterial::from(
-                        Color::hex("ffff00").unwrap_or_default(),
-                    )),
-                    transform: Transform::from_translation(transform.translation),
-                    ..default()
-                })
-                .insert(Bullet {
-                    direction,
-                    ..Default::default()
-                });
+            if gun.cooldown_timer.finished() {
+                commands
+                    .spawn(MaterialMesh2dBundle {
+                        mesh: meshes.add(shape::Circle::new(10.).into()).into(),
+                        material: materials.add(ColorMaterial::from(
+                            Color::hex("FF70B3").unwrap_or_default(),
+                        )),
+                        transform: Transform::from_translation(transform.translation),
+                        ..default()
+                    })
+                    .insert(Bullet {
+                        direction,
+                        ..Default::default()
+                    });
+                gun.cooldown_timer.reset();
+            } else {
+                gun.cooldown_timer.tick(Duration::from_secs_f32(time.delta_seconds()));
+            }
         }
     }
 }

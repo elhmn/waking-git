@@ -43,7 +43,13 @@ fn setup(
     let win = windows.primary();
     let data = &world_data.0;
     commands
-        .spawn(Camera2dBundle::default())
+        .spawn(Camera2dBundle {
+            transform: Transform {
+                scale: Vec3::new(1.5, 1.5, 1.),
+                ..Default::default()
+            },
+            ..Default::default()
+        })
         .insert(camera::MainCamera);
 
     // Spawn the player before anything else
@@ -51,12 +57,12 @@ fn setup(
 
     //Spawn ennemies
     let main_scene = &data.scenes[&data.main_scene];
-    for (id, entity) in &main_scene.entities {
+    for (_, entity) in &main_scene.entities {
         let color = entity.color.replace('#', "");
         match entity.kind.as_str() {
             shapes::CIRCLE => {
                 spawn_circle(
-                    id.to_string(),
+                    entity.name.to_string(),
                     color,
                     &mut commands,
                     win,
@@ -65,11 +71,11 @@ fn setup(
                 );
             }
             shapes::RECTANGLE => {
-                spawn_rectangle(id.to_string(), color, &mut commands, win);
+                spawn_rectangle(entity.name.to_string(), color, &mut commands, win);
             }
             shapes::TRIANGLE => {
                 spawn_triangle(
-                    id.to_string(),
+                    entity.name.to_string(),
                     color,
                     &mut commands,
                     win,
@@ -79,7 +85,7 @@ fn setup(
             }
             shapes::HEXAGON => {
                 spawn_hexagon(
-                    id.to_string(),
+                    entity.name.to_string(),
                     color,
                     &mut commands,
                     win,
@@ -91,7 +97,7 @@ fn setup(
                 //we will spawn an hexagon until we have defined
                 //a different shape for the rest of entity's kind
                 spawn_hexagon(
-                    id.to_string(),
+                    entity.name.to_string(),
                     color,
                     &mut commands,
                     win,
@@ -121,6 +127,8 @@ fn spawn_player(
             hp: 100.,
         })
         .insert(player::Velocity { x: 0.1, y: 0.1 })
+        .insert(player::Gun::default())
+        .insert(Name::new("Player"))
         .insert(cell::Cell {
             name: "player".to_string(),
             ..Default::default()
@@ -136,7 +144,7 @@ fn get_random_position(w: f32, h: f32) -> Vec3 {
 }
 
 fn spawn_circle(
-    id: String,
+    name: String,
     color: String,
     commands: &mut Commands,
     win: &Window,
@@ -154,14 +162,15 @@ fn spawn_circle(
             speed: 200.,
             ..default()
         })
+        .insert(Name::new(name.to_owned()))
         .insert(cell::Cell {
-            name: id,
+            name,
             ..Default::default()
         });
 }
 
 fn spawn_hexagon(
-    id: String,
+    name: String,
     color: String,
     commands: &mut Commands,
     win: &Window,
@@ -179,14 +188,15 @@ fn spawn_hexagon(
             speed: 150.,
             ..default()
         })
+        .insert(Name::new(name.to_owned()))
         .insert(cell::Cell {
-            name: id,
+            name,
             ..Default::default()
         });
 }
 
 fn spawn_triangle(
-    id: String,
+    name: String,
     color: String,
     commands: &mut Commands,
     win: &Window,
@@ -204,13 +214,14 @@ fn spawn_triangle(
             speed: 150.,
             ..default()
         })
+        .insert(Name::new(name.to_owned()))
         .insert(cell::Cell {
-            name: id,
+            name,
             ..Default::default()
         });
 }
 
-fn spawn_rectangle(id: String, color: String, commands: &mut Commands, win: &Window) {
+fn spawn_rectangle(name: String, color: String, commands: &mut Commands, win: &Window) {
     commands
         .spawn(SpriteBundle {
             sprite: Sprite {
@@ -225,8 +236,9 @@ fn spawn_rectangle(id: String, color: String, commands: &mut Commands, win: &Win
             speed: 100.,
             ..default()
         })
+        .insert(Name::new(name.to_owned()))
         .insert(cell::Cell {
-            name: id,
+            name,
             ..Default::default()
         });
 }
