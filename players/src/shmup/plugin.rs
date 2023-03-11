@@ -3,6 +3,7 @@ use super::components::cell;
 use super::components::patterns;
 use super::components::player;
 use super::debug;
+use super::systems::camera as camera_system;
 use super::systems::movements;
 use super::systems::player as player_systems;
 use super::systems::player_bullet;
@@ -29,7 +30,8 @@ impl Plugin for ShmupPlugin {
             .add_system(player_systems::keyboad_input)
             .add_system(player_systems::mouse_input)
             .add_system(player_bullet::movement)
-            .add_system(player_bullet::despawn);
+            .add_system(player_bullet::despawn)
+            .add_system(camera_system::follow_player);
     }
 }
 
@@ -49,7 +51,7 @@ fn setup(
                 ..Default::default()
             },
             projection: OrthographicProjection {
-                scaling_mode: ScalingMode::FixedHorizontal(2000.),
+                scaling_mode: ScalingMode::FixedHorizontal(1500.),
                 ..Default::default()
             },
             ..Default::default()
