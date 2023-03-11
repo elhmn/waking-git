@@ -45,7 +45,7 @@ fn setup(
     commands
         .spawn(Camera2dBundle {
             transform: Transform {
-                scale: Vec3::new(1.5, 1.5, 1.),
+                scale: Vec3::new(1.2, 1.2, 1.),
                 ..Default::default()
             },
             ..Default::default()
@@ -57,7 +57,7 @@ fn setup(
 
     //Spawn ennemies
     let main_scene = &data.scenes[&data.main_scene];
-    for (_, entity) in &main_scene.entities {
+    for entity in main_scene.entities.values() {
         let color = entity.color.replace('#', "");
         match entity.kind.as_str() {
             shapes::CIRCLE => {
@@ -114,10 +114,10 @@ fn spawn_player(
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<ColorMaterial>>,
 ) {
-    let color = "ffffff";
+    let color = "26a641";
     commands
         .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::RegularPolygon::new(20., 8).into()).into(),
+            mesh: meshes.add(shape::RegularPolygon::new(20., 3).into()).into(),
             material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
             ..default()

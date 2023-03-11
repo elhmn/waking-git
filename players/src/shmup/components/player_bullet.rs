@@ -12,7 +12,7 @@ impl Default for Bullet {
     fn default() -> Self {
         Self {
             life_timer: Timer::from_seconds(2., TimerMode::Once),
-            speed: 1300.,
+            speed: 2000.,
             damage: 1.,
             direction: Vec2::new(0., 0.),
         }

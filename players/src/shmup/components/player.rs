@@ -20,7 +20,7 @@ pub struct Gun {
 impl Default for Gun {
     fn default() -> Self {
         Self {
-            cooldown_timer: Timer::from_seconds(0.07, TimerMode::Once),
+            cooldown_timer: Timer::from_seconds(0.05, TimerMode::Once),
         }
     }
 }
