@@ -9,8 +9,10 @@ pub fn follow_player(
     let camera_transform = cam.get_single_mut();
     if let Ok(mut camera_transform) = camera_transform {
         if let Ok(player_transform) = player.get_single() {
-            camera_transform.translation.x = player_transform.translation.x.round();
-            camera_transform.translation.y = player_transform.translation.y.round();
+            let player_pos = player_transform.translation;
+            let smoothness = 0.1;
+            let smoothed_position = camera_transform.translation.lerp(player_pos, smoothness);
+            camera_transform.translation = smoothed_position;
         }
     }
 }
