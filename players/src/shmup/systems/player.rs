@@ -62,7 +62,7 @@ pub fn mouse_input(
             .map(|ray| ray.origin.truncate())
             .unwrap_or_default();
 
-        //Get the direction of the bullet
+        //Get the direction to the mouse
         let mut mouse_direction = Vec2::new(
             mouse_pos.x - transform.translation.x,
             mouse_pos.y - transform.translation.y,

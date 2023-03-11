@@ -7,7 +7,7 @@ use super::systems::movements;
 use super::systems::player as player_systems;
 use super::systems::player_bullet;
 use super::WorldData;
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy::{prelude::*, render::camera::ScalingMode, sprite::MaterialMesh2dBundle};
 use core::shapes;
 use rand::prelude::*;
 
@@ -45,7 +45,11 @@ fn setup(
     commands
         .spawn(Camera2dBundle {
             transform: Transform {
-                scale: Vec3::new(1.2, 1.2, 1.),
+                scale: Vec3::new(1., 1., 1.),
+                ..Default::default()
+            },
+            projection: OrthographicProjection {
+                scaling_mode: ScalingMode::FixedHorizontal(2000.),
                 ..Default::default()
             },
             ..Default::default()
