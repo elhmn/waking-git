@@ -10,7 +10,7 @@ pub fn follow_player(
     if let Ok(mut camera_transform) = camera_transform {
         if let Ok(player_transform) = player.get_single() {
             let player_pos = player_transform.translation;
-            let smoothness = 0.1;
+            let smoothness = 0.02;
             let smoothed_position = camera_transform.translation.lerp(player_pos, smoothness);
             camera_transform.translation = smoothed_position;
         }

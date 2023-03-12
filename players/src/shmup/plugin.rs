@@ -14,6 +14,10 @@ use rand::prelude::*;
 
 pub struct ShmupPlugin;
 
+const MAP_SIZE: u32 = 100;
+const MAP_BLOCK_SIZE: u32 = 30;
+const GRID_WIDTH: f32 = 0.3;
+
 impl Plugin for ShmupPlugin {
     fn build(&self, app: &mut App) {
         // set GitHub dark mode background color
@@ -26,6 +30,7 @@ impl Plugin for ShmupPlugin {
             .add_system(movements::movement_pattern_1)
             .add_system(movements::movement_pattern_2)
             .add_system(movements::movement_pattern_3)
+            .add_system(movements::move_towards)
             .add_system(player_systems::movement)
             .add_system(player_systems::keyboad_input)
             .add_system(player_systems::mouse_input)
@@ -44,6 +49,7 @@ fn setup(
 ) {
     let win = windows.primary();
     let data = &world_data.0;
+
     commands
         .spawn(Camera2dBundle {
             transform: Transform {
@@ -57,6 +63,8 @@ fn setup(
             ..Default::default()
         })
         .insert(camera::MainCamera);
+
+    spawn_background(&mut commands);
 
     // Spawn the player before anything else
     spawn_player(&mut commands, &mut meshes, &mut materials);
@@ -115,6 +123,49 @@ fn setup(
     }
 }
 
+fn spawn_background(commands: &mut Commands) {
+    //took from that tutorial https://johanhelsing.studio/posts/extreme-bevy-2
+    // Horizontal lines
+    for i in 0..=MAP_SIZE {
+        commands.spawn(SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(
+                0.,
+                (MAP_SIZE as f32 * MAP_BLOCK_SIZE as f32 / 2.) - (i as f32 * MAP_BLOCK_SIZE as f32),
+                -0.1,
+            )),
+            sprite: Sprite {
+                color: Color::rgb(1., 1., 1.),
+                custom_size: Some(Vec2::new(
+                    MAP_BLOCK_SIZE as f32 * MAP_SIZE as f32,
+                    GRID_WIDTH,
+                )),
+                ..default()
+            },
+            ..default()
+        });
+    }
+
+    // Vertical lines
+    for i in 0..=MAP_SIZE {
+        commands.spawn(SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(
+                (MAP_SIZE as f32 * MAP_BLOCK_SIZE as f32 / 2.) - (i as f32 * MAP_BLOCK_SIZE as f32),
+                0.,
+                -0.1,
+            )),
+            sprite: Sprite {
+                color: Color::rgb(1., 1., 1.),
+                custom_size: Some(Vec2::new(
+                    GRID_WIDTH,
+                    MAP_BLOCK_SIZE as f32 * MAP_SIZE as f32,
+                )),
+                ..default()
+            },
+            ..default()
+        });
+    }
+}
+
 fn spawn_player(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -164,10 +215,7 @@ fn spawn_circle(
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
         })
-        .insert(patterns::Pattern3 {
-            speed: 200.,
-            ..default()
-        })
+        .insert(patterns::MoveTowards::default())
         .insert(Name::new(name.to_owned()))
         .insert(cell::Cell {
             name,
