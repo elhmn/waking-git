@@ -28,8 +28,8 @@ pub struct MoveTowards {
 
 impl Default for MoveTowards {
     fn default() -> Self {
-        let initial_speed = 100.;
-        let max_speed = 300.;
+        let initial_speed = 25.;
+        let max_speed = 50.;
         Self {
             max_prediction_time: 1000.,
             initial_speed,
