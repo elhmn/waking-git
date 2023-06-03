@@ -78,6 +78,7 @@ fn setup(
                 spawn_circle(
                     entity.name.to_string(),
                     color,
+                    random_size(),
                     &mut commands,
                     win,
                     &mut meshes,
@@ -85,12 +86,19 @@ fn setup(
                 );
             }
             shapes::RECTANGLE => {
-                spawn_rectangle(entity.name.to_string(), color, &mut commands, win);
+                spawn_rectangle(
+                    entity.name.to_string(),
+                    color,
+                    random_rectangle_size(),
+                    &mut commands,
+                    win,
+                );
             }
             shapes::TRIANGLE => {
                 spawn_triangle(
                     entity.name.to_string(),
                     color,
+                    random_size(),
                     &mut commands,
                     win,
                     &mut meshes,
@@ -101,6 +109,7 @@ fn setup(
                 spawn_hexagon(
                     entity.name.to_string(),
                     color,
+                    random_size(),
                     &mut commands,
                     win,
                     &mut meshes,
@@ -113,6 +122,7 @@ fn setup(
                 spawn_hexagon(
                     entity.name.to_string(),
                     color,
+                    random_size(),
                     &mut commands,
                     win,
                     &mut meshes,
@@ -203,6 +213,7 @@ fn get_random_position(w: f32, h: f32) -> Vec3 {
 fn spawn_circle(
     name: String,
     color: String,
+    size: f32,
     commands: &mut Commands,
     win: &Window,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -210,7 +221,7 @@ fn spawn_circle(
 ) {
     commands
         .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::Circle::new(20.).into()).into(),
+            mesh: meshes.add(shape::Circle::new(size).into()).into(),
             material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
@@ -226,6 +237,7 @@ fn spawn_circle(
 fn spawn_hexagon(
     name: String,
     color: String,
+    size: f32,
     commands: &mut Commands,
     win: &Window,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -233,7 +245,9 @@ fn spawn_hexagon(
 ) {
     commands
         .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::RegularPolygon::new(20., 6).into()).into(),
+            mesh: meshes
+                .add(shape::RegularPolygon::new(size, 6).into())
+                .into(),
             material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
@@ -252,6 +266,7 @@ fn spawn_hexagon(
 fn spawn_triangle(
     name: String,
     color: String,
+    size: f32,
     commands: &mut Commands,
     win: &Window,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -259,7 +274,9 @@ fn spawn_triangle(
 ) {
     commands
         .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::RegularPolygon::new(20., 3).into()).into(),
+            mesh: meshes
+                .add(shape::RegularPolygon::new(size, 3).into())
+                .into(),
             material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
             ..default()
@@ -275,12 +292,12 @@ fn spawn_triangle(
         });
 }
 
-fn spawn_rectangle(name: String, color: String, commands: &mut Commands, win: &Window) {
+fn spawn_rectangle(name: String, color: String, size: f32, commands: &mut Commands, win: &Window) {
     commands
         .spawn(SpriteBundle {
             sprite: Sprite {
                 color: Color::hex(color).unwrap_or_default(),
-                custom_size: Some(Vec2::new(40.0, 40.0)),
+                custom_size: Some(Vec2::new(size, size)),
                 ..default()
             },
             transform: Transform::from_translation(get_random_position(win.width(), win.height())),
@@ -295,4 +312,26 @@ fn spawn_rectangle(name: String, color: String, commands: &mut Commands, win: &W
             name,
             ..Default::default()
         });
+}
+
+fn random_size() -> f32 {
+    match rand::thread_rng().gen_range(0..10) {
+        v if (0..1).contains(&v) => 30.,
+        v if (1..2).contains(&v) => 40.,
+        v if (2..3).contains(&v) => 50.,
+        v if (3..4).contains(&v) => 60.,
+        v if (4..5).contains(&v) => 70.,
+        _ => 20.,
+    }
+}
+
+fn random_rectangle_size() -> f32 {
+    match rand::thread_rng().gen_range(0..10) {
+        v if (0..1).contains(&v) => 50.,
+        v if (1..2).contains(&v) => 60.,
+        v if (2..3).contains(&v) => 70.,
+        v if (3..4).contains(&v) => 80.,
+        v if (4..5).contains(&v) => 90.,
+        _ => 40.,
+    }
 }
