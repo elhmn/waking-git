@@ -1,5 +1,6 @@
 pub mod components;
 pub mod debug;
+pub mod placer;
 pub mod plugin;
 pub mod systems;
 
@@ -12,7 +13,7 @@ use core::converters;
 const TIMESTEP_60_FPS: f64 = 1. / 60.;
 
 #[derive(Resource, Default, Debug)]
-struct WorldData(converters::shmup::Data);
+pub struct WorldData(converters::shmup::Data);
 
 fn default_plugins() -> PluginGroupBuilder {
     DefaultPlugins.set({
