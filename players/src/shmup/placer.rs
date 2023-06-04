@@ -27,6 +27,7 @@ pub fn new() -> Placer {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 impl Placer {
     pub fn spawn_entities(
         &self,
