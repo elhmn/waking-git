@@ -46,14 +46,14 @@ fn setup(
                 ..Default::default()
             },
             projection: OrthographicProjection {
-                scaling_mode: ScalingMode::FixedHorizontal(3500.),
+                scaling_mode: ScalingMode::FixedHorizontal(3000.),
                 ..Default::default()
             },
             ..Default::default()
         })
         .insert(camera::MainCamera);
 
-    let placer = placer::new();
+    let mut placer = placer::new();
     placer.spawn_entities(
         windows,
         world_data,
