@@ -2,6 +2,8 @@ use super::components::camera;
 use super::debug;
 use super::placer;
 use super::systems::camera as camera_system;
+use super::systems::enemy_bullets as enemy_bullets_systems;
+use super::systems::guns as guns_systems;
 use super::systems::movements;
 use super::systems::player as player_systems;
 use super::systems::player_bullet;
@@ -28,6 +30,12 @@ impl Plugin for ShmupPlugin {
             .add_system(player_systems::mouse_input)
             .add_system(player_bullet::movement)
             .add_system(player_bullet::despawn)
+            .add_system(enemy_bullets_systems::despawn)
+            .add_system(enemy_bullets_systems::movement)
+            .add_system(guns_systems::simple_gun)
+            .add_system(guns_systems::fast_gun)
+            .add_system(guns_systems::multidirection_circle_gun)
+            .add_system(guns_systems::multidirection_rectangle_gun)
             .add_system(camera_system::follow_player);
     }
 }
@@ -46,7 +54,7 @@ fn setup(
                 ..Default::default()
             },
             projection: OrthographicProjection {
-                scaling_mode: ScalingMode::FixedHorizontal(3000.),
+                scaling_mode: ScalingMode::FixedHorizontal(4000.),
                 ..Default::default()
             },
             ..Default::default()

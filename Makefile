@@ -83,6 +83,21 @@ fmt: install-deps
 install-hooks:
 	ln -s $(PWD)/githooks/pre-push .git/hooks/pre-push
 
+## clean: remove generated files
+.PHONY: clean
+clean:
+	rm -rf ~/$(WAKE_FOLDER)/bin/
+	rm -rf $(BIN_PATH)
+	rm -rf $(WAKE_TARGET)
+	rm -rf $(PLAYERS_TARGET)
+
+## build-players: build players binary.
+.PHONY: build-players
+build-players: $(PLAYERS_TARGET)
+
+$(PLAYERS_TARGET):
+	cargo build -p players
+
 .PHONY: all
 all: help
 

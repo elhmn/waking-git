@@ -1,5 +1,5 @@
 use super::components::cell;
-use super::components::patterns;
+use super::components::guns;
 use super::components::player;
 use super::WorldData;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
@@ -10,7 +10,7 @@ const BG_MAP_SIZE: u32 = 100;
 const BG_MAP_BLOCK_SIZE: u32 = 30;
 const BG_GRID_WIDTH: f32 = 0.3;
 
-const AREA_BLOCK_SIZE: f32 = 50.;
+const AREA_BLOCK_SIZE: f32 = 70.;
 const AREA_BLOCK_PADDING: f32 = 20.;
 const AREA_BLOCK_COL: i32 = 20;
 const AREA_BLOCK_ROW: i32 = 17;
@@ -227,19 +227,26 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
-        commands
-            .spawn(MaterialMesh2dBundle {
-                mesh: meshes.add(shape::Circle::new(size).into()).into(),
-                material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
-                transform: Transform::from_translation(position),
-                ..default()
-            })
-            .insert(patterns::MoveTowards::default())
+        let entity = &mut commands.spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(shape::Circle::new(size).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
+            transform: Transform::from_translation(position),
+            ..default()
+        });
+
+        entity
+            //             .insert(patterns::MoveTowards::default())
             .insert(Name::new(name.to_owned()))
             .insert(cell::Cell {
                 name,
                 ..Default::default()
             });
+
+        if size >= 60. {
+            entity.insert(guns::MultiDirectionCircleGun::default());
+        } else {
+            entity.insert(guns::FastGun::default());
+        }
     }
 
     fn spawn_hexagon(
@@ -261,10 +268,10 @@ impl Placer {
                 transform: Transform::from_translation(position),
                 ..default()
             })
-            .insert(patterns::Pattern3 {
-                speed: 150.,
-                ..default()
-            })
+            //             .insert(patterns::Pattern3 {
+            //                 speed: 150.,
+            //                 ..default()
+            //})
             .insert(Name::new(name.to_owned()))
             .insert(cell::Cell {
                 name,
@@ -291,10 +298,11 @@ impl Placer {
                 transform: Transform::from_translation(position),
                 ..default()
             })
-            .insert(patterns::Pattern3 {
-                speed: 150.,
-                ..default()
-            })
+            .insert(guns::SimpleGun::default())
+            //             .insert(patterns::Pattern3 {
+            //                 speed: 150.,
+            //                 ..default()
+            //             })
             .insert(Name::new(name.to_owned()))
             .insert(cell::Cell {
                 name,
@@ -320,10 +328,11 @@ impl Placer {
                 transform: Transform::from_translation(position),
                 ..default()
             })
-            .insert(patterns::Pattern3 {
-                speed: 100.,
-                ..default()
-            })
+            .insert(guns::MultiDirectionRectangleGun::default()) // Debug
+            //             .insert(patterns::Pattern3 {
+            //                 speed: 100.,
+            //                 ..default()
+            //             })
             .insert(Name::new(name.to_owned()))
             .insert(cell::Cell {
                 name,
@@ -450,11 +459,11 @@ impl Placer {
 
 fn random_size() -> f32 {
     match rand::thread_rng().gen_range(0..10) {
-        v if (0..1).contains(&v) => 30.,
-        v if (1..2).contains(&v) => 40.,
-        v if (2..3).contains(&v) => 50.,
-        v if (3..4).contains(&v) => 60.,
-        v if (4..5).contains(&v) => 70.,
-        _ => 20.,
+        v if (0..1).contains(&v) => 40.,
+        v if (1..2).contains(&v) => 50.,
+        v if (2..3).contains(&v) => 60.,
+        v if (3..4).contains(&v) => 70.,
+        v if (4..5).contains(&v) => 80.,
+        _ => 30.,
     }
 }
