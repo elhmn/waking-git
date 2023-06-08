@@ -8,6 +8,15 @@ of your code (Intefaces, Classes, functions etc...) can be used to create living
 Those creatures can be mobs/enemies depending on how well their structure match well known
 code smell, in the programming language the code is written on.
 
+## Little shmup example (WIP)
+
+Here is work in progress shmup game that is currently being built on the `implement-a-shmup-demo` branch:
+
+
+https://github.com/elhmn/waking-git/assets/5704817/08169994-742e-44c7-af14-2e1feadc536b
+
+
+
 ## Development
 The project is built in `rust`, and uses git as a strong dependency.
 
