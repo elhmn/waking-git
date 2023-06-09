@@ -1,4 +1,4 @@
-use super::components::cell;
+use super::components::enemy;
 use super::components::guns;
 use super::components::player;
 use super::WorldData;
@@ -8,7 +8,7 @@ use rand::prelude::*;
 
 const BG_MAP_SIZE: u32 = 100;
 const BG_MAP_BLOCK_SIZE: u32 = 30;
-const BG_GRID_WIDTH: f32 = 0.3;
+const BG_GRID_WIDTH: f32 = 1.;
 
 const AREA_BLOCK_SIZE: f32 = 70.;
 const AREA_BLOCK_PADDING: f32 = 20.;
@@ -196,6 +196,18 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
+        let color = "26a64166";
+        let player_size = 50.;
+        let col_sprite = SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
+            sprite: Sprite {
+                color: Color::hex(color).unwrap_or_default(),
+                custom_size: Some(Vec2::new(player_size, player_size)),
+                ..default()
+            },
+            ..default()
+        };
+
         let color = "26a641";
         commands
             .spawn(MaterialMesh2dBundle {
@@ -204,6 +216,11 @@ impl Placer {
                 transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
                 ..default()
             })
+            .with_children(|parent| {
+                parent
+                    .spawn(col_sprite)
+                    .insert(player::PlayerCollider::default());
+            })
             .insert(player::Player {
                 speed: 25.,
                 hp: 100.,
@@ -211,7 +228,7 @@ impl Placer {
             .insert(player::Velocity { x: 0.1, y: 0.1 })
             .insert(player::Gun::default())
             .insert(Name::new("Player"))
-            .insert(cell::Cell {
+            .insert(enemy::Enemy {
                 name: "player".to_string(),
                 ..Default::default()
             });
@@ -227,6 +244,17 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
+        let col_color = "26a64166";
+        let col_sprite = SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
+            sprite: Sprite {
+                color: Color::hex(col_color).unwrap_or_default(),
+                custom_size: Some(Vec2::new(size * 2., size * 2.)),
+                ..default()
+            },
+            ..default()
+        };
+
         let entity = &mut commands.spawn(MaterialMesh2dBundle {
             mesh: meshes.add(shape::Circle::new(size).into()).into(),
             material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
@@ -235,11 +263,16 @@ impl Placer {
         });
 
         entity
-            //             .insert(patterns::MoveTowards::default())
+            //                         .insert(patterns::MoveTowards::default())
             .insert(Name::new(name.to_owned()))
-            .insert(cell::Cell {
+            .insert(enemy::Enemy {
                 name,
                 ..Default::default()
+            })
+            .with_children(|parent| {
+                parent
+                    .spawn(col_sprite)
+                    .insert(enemy::EnemyCollider::default());
             });
 
         if size >= 60. {
@@ -259,6 +292,17 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
+        let col_color = "26a64166";
+        let col_sprite = SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
+            sprite: Sprite {
+                color: Color::hex(col_color).unwrap_or_default(),
+                custom_size: Some(Vec2::new(size, size)),
+                ..default()
+            },
+            ..default()
+        };
+
         commands
             .spawn(MaterialMesh2dBundle {
                 mesh: meshes
@@ -268,12 +312,17 @@ impl Placer {
                 transform: Transform::from_translation(position),
                 ..default()
             })
+            .with_children(|parent| {
+                parent
+                    .spawn(col_sprite)
+                    .insert(enemy::EnemyCollider::default());
+            })
             //             .insert(patterns::Pattern3 {
             //                 speed: 150.,
             //                 ..default()
             //})
             .insert(Name::new(name.to_owned()))
-            .insert(cell::Cell {
+            .insert(enemy::Enemy {
                 name,
                 ..Default::default()
             });
@@ -289,6 +338,17 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
+        let col_color = "26a64166";
+        let col_sprite = SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
+            sprite: Sprite {
+                color: Color::hex(col_color).unwrap_or_default(),
+                custom_size: Some(Vec2::new(size * 1.5, size * 1.5)),
+                ..default()
+            },
+            ..default()
+        };
+
         commands
             .spawn(MaterialMesh2dBundle {
                 mesh: meshes
@@ -298,13 +358,18 @@ impl Placer {
                 transform: Transform::from_translation(position),
                 ..default()
             })
+            .with_children(|parent| {
+                parent
+                    .spawn(col_sprite)
+                    .insert(enemy::EnemyCollider::default());
+            })
             .insert(guns::SimpleGun::default())
             //             .insert(patterns::Pattern3 {
             //                 speed: 150.,
             //                 ..default()
             //             })
             .insert(Name::new(name.to_owned()))
-            .insert(cell::Cell {
+            .insert(enemy::Enemy {
                 name,
                 ..Default::default()
             });
@@ -318,15 +383,32 @@ impl Placer {
         position: Vec3,
         commands: &mut Commands,
     ) {
+        let padding = 20.;
+        let col_color = "26a64166";
+        let col_sprite = SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
+            sprite: Sprite {
+                color: Color::hex(col_color).unwrap_or_default(),
+                custom_size: Some(Vec2::new(size + padding + 2., size + padding + 2.)),
+                ..default()
+            },
+            ..default()
+        };
+
         commands
             .spawn(SpriteBundle {
                 sprite: Sprite {
                     color: Color::hex(color).unwrap_or_default(),
-                    custom_size: Some(Vec2::new(size + 20., size + 20.)),
+                    custom_size: Some(Vec2::new(size + padding, size + padding)),
                     ..default()
                 },
                 transform: Transform::from_translation(position),
                 ..default()
+            })
+            .with_children(|parent| {
+                parent
+                    .spawn(col_sprite)
+                    .insert(enemy::EnemyCollider::default());
             })
             .insert(guns::MultiDirectionRectangleGun::default()) // Debug
             //             .insert(patterns::Pattern3 {
@@ -334,7 +416,7 @@ impl Placer {
             //                 ..default()
             //             })
             .insert(Name::new(name.to_owned()))
-            .insert(cell::Cell {
+            .insert(enemy::Enemy {
                 name,
                 ..Default::default()
             });

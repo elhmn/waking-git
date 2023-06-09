@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Component, Debug, Default)]
-pub struct Cell {
+pub struct Enemy {
     pub id: String,
     pub scene_id: String,
     pub color: String,
@@ -12,3 +12,6 @@ pub struct Cell {
     pub destructible: bool,
     pub shield: String,
 }
+
+#[derive(Component, Debug, Default)]
+pub struct EnemyCollider {}

@@ -7,6 +7,9 @@ pub struct Player {
 }
 
 #[derive(Component, Debug, Default)]
+pub struct PlayerCollider {}
+
+#[derive(Component, Debug, Default)]
 pub struct Velocity {
     pub x: f32,
     pub y: f32,

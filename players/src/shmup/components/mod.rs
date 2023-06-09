@@ -1,5 +1,5 @@
 pub mod camera;
-pub mod cell;
+pub mod enemy;
 pub mod enemy_bullets;
 pub mod guns;
 pub mod patterns;

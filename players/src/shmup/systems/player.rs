@@ -1,7 +1,10 @@
 use super::super::components::camera;
+use super::super::components::enemy;
+use super::super::components::enemy_bullets;
 use super::super::components::player;
-use super::super::components::player_bullet::Bullet;
+use super::super::components::player_bullet;
 use bevy::prelude::*;
+use bevy::sprite::collide_aabb::collide;
 use std::time::Duration;
 
 pub fn movement(
@@ -76,11 +79,24 @@ pub fn mouse_input(
 
         if mouse.pressed(MouseButton::Left) {
             if gun.cooldown_timer.finished() {
+                let size = Vec2::new(20., 60.);
+                let padding = 20.;
+                let col_color = "26a64166";
+                let col_sprite = SpriteBundle {
+                    transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
+                    sprite: Sprite {
+                        color: Color::hex(col_color).unwrap_or_default(),
+                        custom_size: Some(Vec2::new(size.x + padding, size.y + padding)),
+                        ..default()
+                    },
+                    ..default()
+                };
+
                 commands
                     .spawn(SpriteBundle {
                         sprite: Sprite {
                             color: Color::hex("39d353").unwrap_or_default(),
-                            custom_size: Some(Vec2::new(20.0, 60.0)),
+                            custom_size: Some(Vec2::new(size.x, size.y)),
                             ..default()
                         },
                         transform: Transform {
@@ -92,7 +108,12 @@ pub fn mouse_input(
                         },
                         ..default()
                     })
-                    .insert(Bullet {
+                    .with_children(|parent| {
+                        parent
+                            .spawn(col_sprite)
+                            .insert(player_bullet::BulletCollider::default());
+                    })
+                    .insert(player_bullet::Bullet {
                         direction: mouse_direction,
                         ..Default::default()
                     });
@@ -100,6 +121,110 @@ pub fn mouse_input(
             } else {
                 gun.cooldown_timer
                     .tick(Duration::from_secs_f32(time.delta_seconds()));
+            }
+        }
+    }
+}
+
+//naive collision detection
+#[allow(clippy::type_complexity)]
+pub fn player_enemy_bullets_collisions(
+    mut commands: Commands,
+    player_query: Query<(&Parent, &mut GlobalTransform, &mut Sprite), With<player::PlayerCollider>>,
+    enemy_bullets: Query<
+        (&Parent, &mut GlobalTransform, &mut Sprite),
+        (
+            With<enemy_bullets::BulletCollider>,
+            Without<player::PlayerCollider>,
+        ),
+    >,
+) {
+    let (_, player_transform, player_sprite) = player_query.get_single().unwrap();
+    for (bullet, bullet_transform, bullet_sprite) in enemy_bullets.iter() {
+        //if bullet collides with the player
+        //the collision is detected using the bevy::sprite::collide_aabb::collide function
+        //destroy the bullet and the player
+        if collide(
+            player_transform.translation(),
+            player_sprite.custom_size.unwrap_or_default(),
+            bullet_transform.translation(),
+            bullet_sprite.custom_size.unwrap_or_default(),
+        )
+        .is_some()
+        {
+            commands.entity(bullet.get()).despawn_recursive();
+        }
+    }
+}
+
+#[allow(clippy::type_complexity)]
+pub fn player_bullets_enemy_bullets_collisions(
+    mut commands: Commands,
+    player_bullets: Query<
+        (&Parent, &mut GlobalTransform, &mut Sprite),
+        With<player_bullet::BulletCollider>,
+    >,
+    enemy_bullets: Query<
+        (&Parent, &mut GlobalTransform, &mut Sprite),
+        (
+            With<enemy_bullets::BulletCollider>,
+            With<enemy_bullets::DestructibleBullet>,
+            Without<player_bullet::BulletCollider>,
+        ),
+    >,
+) {
+    for (bullet, bullet_transform, bullet_sprite) in enemy_bullets.iter() {
+        for (player_bullet, player_bullet_transform, player_bullet_sprite) in player_bullets.iter()
+        {
+            //if bullet collides with the player bullet
+            //the collision is detected using the bevy::sprite::collide_aabb::collide function
+            //destroy the bullet and the player bullet
+            if collide(
+                player_bullet_transform.translation(),
+                player_bullet_sprite.custom_size.unwrap_or_default(),
+                bullet_transform.translation(),
+                bullet_sprite.custom_size.unwrap_or_default(),
+            )
+            .is_some()
+            {
+                commands.entity(bullet.get()).despawn_recursive();
+                commands.entity(player_bullet.get()).despawn_recursive();
+            }
+        }
+    }
+}
+
+#[allow(clippy::type_complexity)]
+pub fn player_bullets_enemies_collisions(
+    mut commands: Commands,
+    player_bullets: Query<
+        (&Parent, &mut GlobalTransform, &mut Sprite),
+        With<player_bullet::BulletCollider>,
+    >,
+    enemies: Query<
+        (&Parent, &mut GlobalTransform, &mut Sprite),
+        (
+            With<enemy::EnemyCollider>,
+            Without<player_bullet::BulletCollider>,
+        ),
+    >,
+) {
+    for (_, enemy_transform, enemy_sprite) in enemies.iter() {
+        for (player_bullet, player_bullet_transform, player_bullet_sprite) in player_bullets.iter()
+        {
+            //if bullet collides with the player bullet
+            //the collision is detected using the bevy::sprite::collide_aabb::collide function
+            //destroy the bullet and the player bullet
+            if collide(
+                player_bullet_transform.translation(),
+                player_bullet_sprite.custom_size.unwrap_or_default(),
+                enemy_transform.translation(),
+                enemy_sprite.custom_size.unwrap_or_default(),
+            )
+            .is_some()
+            {
+                //                 commands.entity(enemy.get()).despawn_recursive();
+                commands.entity(player_bullet.get()).despawn_recursive();
             }
         }
     }

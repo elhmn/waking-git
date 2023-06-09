@@ -17,7 +17,7 @@ pub fn despawn(
 ) {
     for (entity, mut bullet) in query.iter_mut() {
         if bullet.life_timer.finished() {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         } else {
             bullet
                 .life_timer

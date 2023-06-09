@@ -8,6 +8,9 @@ pub struct Bullet {
     pub direction: Vec2,
 }
 
+#[derive(Component, Debug, Default)]
+pub struct BulletCollider {}
+
 impl Default for Bullet {
     fn default() -> Self {
         Self {

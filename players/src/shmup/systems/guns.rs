@@ -1,4 +1,6 @@
-use super::super::components::enemy_bullets::{self, COLOR_DESTRUCTIBLE, COLOR_UNDESTRUCTIBLE};
+use super::super::components::enemy_bullets::{
+    self, BulletKind, COLOR_DESTRUCTIBLE, COLOR_UNDESTRUCTIBLE,
+};
 use super::super::components::guns::{self, Direction};
 use super::super::components::player;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
@@ -18,20 +20,15 @@ pub fn simple_gun(
         let direction = player.translation - gun_transform.translation;
         let direction = direction.normalize().truncate();
         if gun.cooldown_timer.finished() {
-            commands
-                .spawn(MaterialMesh2dBundle {
-                    mesh: meshes.add(shape::Circle::new(20.).into()).into(),
-                    material: materials.add(ColorMaterial::from(
-                        Color::hex(COLOR_DESTRUCTIBLE).unwrap_or_default(),
-                    )),
-                    transform: *gun_transform,
-                    ..default()
-                })
-                .insert(enemy_bullets::Bullet {
-                    direction,
-                    speed: 700.,
-                    ..Default::default()
-                });
+            spawn_bullet(
+                &mut commands,
+                *gun_transform,
+                direction,
+                700.,
+                BulletKind::Destructible,
+                &mut meshes,
+                &mut materials,
+            );
             gun.cooldown_timer.reset();
         } else {
             gun.cooldown_timer
@@ -56,36 +53,26 @@ pub fn fast_gun(
         if gun.cooldown_timer.finished() {
             if gun.count_fired_bullets <= 2 {
                 //shoot orange bullets
-                commands
-                    .spawn(MaterialMesh2dBundle {
-                        mesh: meshes.add(shape::Circle::new(20.).into()).into(),
-                        material: materials.add(ColorMaterial::from(
-                            Color::hex(COLOR_DESTRUCTIBLE).unwrap_or_default(),
-                        )),
-                        transform: *gun_transform,
-                        ..default()
-                    })
-                    .insert(enemy_bullets::Bullet {
-                        direction,
-                        speed: 700.,
-                        ..Default::default()
-                    });
+                spawn_bullet(
+                    &mut commands,
+                    *gun_transform,
+                    direction,
+                    700.,
+                    BulletKind::Destructible,
+                    &mut meshes,
+                    &mut materials,
+                );
             } else {
                 //shoot undestructible bullets
-                commands
-                    .spawn(MaterialMesh2dBundle {
-                        mesh: meshes.add(shape::Circle::new(20.).into()).into(),
-                        material: materials.add(ColorMaterial::from(
-                            Color::hex(COLOR_UNDESTRUCTIBLE).unwrap_or_default(),
-                        )),
-                        transform: *gun_transform,
-                        ..default()
-                    })
-                    .insert(enemy_bullets::Bullet {
-                        direction,
-                        speed: 700.,
-                        ..Default::default()
-                    });
+                spawn_bullet(
+                    &mut commands,
+                    *gun_transform,
+                    direction,
+                    700.,
+                    BulletKind::Undestructible,
+                    &mut meshes,
+                    &mut materials,
+                );
             }
             gun.count_fired_bullets = if gun.count_fired_bullets > 4 {
                 0
@@ -123,7 +110,7 @@ pub fn multidirection_circle_gun(
                             *gun_transform,
                             north_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -137,7 +124,7 @@ pub fn multidirection_circle_gun(
                             *gun_transform,
                             north_east_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -152,7 +139,7 @@ pub fn multidirection_circle_gun(
                             *gun_transform,
                             north_west_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -166,7 +153,7 @@ pub fn multidirection_circle_gun(
                             *gun_transform,
                             south_dir.normalize(),
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -181,7 +168,7 @@ pub fn multidirection_circle_gun(
                             *gun_transform,
                             south_east_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -196,7 +183,7 @@ pub fn multidirection_circle_gun(
                             *gun_transform,
                             south_west_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -209,7 +196,7 @@ pub fn multidirection_circle_gun(
                             *gun_transform,
                             east_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -222,7 +209,7 @@ pub fn multidirection_circle_gun(
                             *gun_transform,
                             west_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -265,7 +252,7 @@ pub fn multidirection_rectangle_gun(
                             *gun_transform,
                             north_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -278,7 +265,7 @@ pub fn multidirection_rectangle_gun(
                             *gun_transform,
                             south_dir.normalize(),
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -291,7 +278,7 @@ pub fn multidirection_rectangle_gun(
                             *gun_transform,
                             east_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -304,7 +291,7 @@ pub fn multidirection_rectangle_gun(
                             *gun_transform,
                             west_dir,
                             700.,
-                            COLOR_UNDESTRUCTIBLE,
+                            BulletKind::Undestructible,
                             &mut meshes,
                             &mut materials,
                         );
@@ -325,16 +312,46 @@ fn spawn_bullet(
     position: Transform,
     direction: Vec2,
     speed: f32,
-    color: &str,
+    kind: BulletKind,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<ColorMaterial>>,
 ) {
-    commands
-        .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::Circle::new(20.).into()).into(),
-            material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
-            transform: position,
+    let color = if matches!(kind, BulletKind::Destructible) {
+        COLOR_DESTRUCTIBLE
+    } else {
+        COLOR_UNDESTRUCTIBLE
+    };
+
+    let size = 20.;
+    let col_color = "26a64166";
+    let col_sprite = SpriteBundle {
+        transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
+        sprite: Sprite {
+            color: Color::hex(col_color).unwrap_or_default(),
+            custom_size: Some(Vec2::new(size * 2., size * 2.)),
             ..default()
+        },
+        ..default()
+    };
+
+    let mut entity = commands.spawn(MaterialMesh2dBundle {
+        mesh: meshes.add(shape::Circle::new(size).into()).into(),
+        material: materials.add(ColorMaterial::from(Color::hex(color).unwrap_or_default())),
+        transform: position,
+        ..default()
+    });
+
+    entity
+        .with_children(|parent| {
+            let mut child = parent.spawn(col_sprite);
+
+            if matches!(kind, BulletKind::Destructible) {
+                child.insert(enemy_bullets::DestructibleBullet::default());
+            } else {
+                child.insert(enemy_bullets::UndestructibleBullet::default());
+            }
+
+            child.insert(enemy_bullets::BulletCollider::default());
         })
         .insert(enemy_bullets::Bullet {
             direction,
