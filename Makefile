@@ -91,13 +91,6 @@ clean:
 	rm -rf $(WAKE_TARGET)
 	rm -rf $(PLAYERS_TARGET)
 
-## build-players: build players binary.
-.PHONY: build-players
-build-players: $(PLAYERS_TARGET)
-
-$(PLAYERS_TARGET):
-	cargo build -p players
-
 .PHONY: all
 all: help
 
