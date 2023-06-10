@@ -13,7 +13,8 @@ code smell, in the programming language the code is written on.
 Here is work in progress shmup game that is currently being built on the `implement-a-shmup-demo` branch:
 
 
-![Kapture 2023-06-08 at 12 05 47 2](https://github.com/elhmn/waking-git/assets/5704817/061e7c6b-8a3c-490c-8329-0b205408a04d)
+![Kapture 2023-06-10 at 10 09 29](https://github.com/elhmn/waking-git/assets/5704817/56a69149-4bc0-4676-8596-d15291071d76)
+
 
 
 
