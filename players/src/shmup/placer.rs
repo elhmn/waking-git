@@ -1,6 +1,7 @@
 use super::components::enemy;
 use super::components::guns;
 use super::components::player;
+use super::config;
 use super::WorldData;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use core::shapes;
@@ -196,12 +197,11 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
-        let color = "26a64166";
         let player_size = 50.;
         let col_sprite = SpriteBundle {
             transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
             sprite: Sprite {
-                color: Color::hex(color).unwrap_or_default(),
+                color: Color::hex(config::get_col_color()).unwrap_or_default(),
                 custom_size: Some(Vec2::new(player_size, player_size)),
                 ..default()
             },
@@ -244,11 +244,10 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
-        let col_color = "26a64166";
         let col_sprite = SpriteBundle {
             transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
             sprite: Sprite {
-                color: Color::hex(col_color).unwrap_or_default(),
+                color: Color::hex(config::get_col_color()).unwrap_or_default(),
                 custom_size: Some(Vec2::new(size * 2., size * 2.)),
                 ..default()
             },
@@ -292,11 +291,10 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
-        let col_color = "26a64166";
         let col_sprite = SpriteBundle {
             transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
             sprite: Sprite {
-                color: Color::hex(col_color).unwrap_or_default(),
+                color: Color::hex(config::get_col_color()).unwrap_or_default(),
                 custom_size: Some(Vec2::new(size, size)),
                 ..default()
             },
@@ -338,11 +336,10 @@ impl Placer {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<ColorMaterial>>,
     ) {
-        let col_color = "26a64166";
         let col_sprite = SpriteBundle {
             transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
             sprite: Sprite {
-                color: Color::hex(col_color).unwrap_or_default(),
+                color: Color::hex(config::get_col_color()).unwrap_or_default(),
                 custom_size: Some(Vec2::new(size * 1.5, size * 1.5)),
                 ..default()
             },
@@ -384,11 +381,10 @@ impl Placer {
         commands: &mut Commands,
     ) {
         let padding = 20.;
-        let col_color = "26a64166";
         let col_sprite = SpriteBundle {
             transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
             sprite: Sprite {
-                color: Color::hex(col_color).unwrap_or_default(),
+                color: Color::hex(config::get_col_color()).unwrap_or_default(),
                 custom_size: Some(Vec2::new(size + padding + 2., size + padding + 2.)),
                 ..default()
             },

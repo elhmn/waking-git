@@ -3,6 +3,7 @@ use super::super::components::enemy;
 use super::super::components::enemy_bullets;
 use super::super::components::player;
 use super::super::components::player_bullet;
+use super::super::config;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 use std::time::Duration;
@@ -81,11 +82,10 @@ pub fn mouse_input(
             if gun.cooldown_timer.finished() {
                 let size = Vec2::new(20., 60.);
                 let padding = 20.;
-                let col_color = "26a64166";
                 let col_sprite = SpriteBundle {
                     transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
                     sprite: Sprite {
-                        color: Color::hex(col_color).unwrap_or_default(),
+                        color: Color::hex(config::get_col_color()).unwrap_or_default(),
                         custom_size: Some(Vec2::new(size.x + padding, size.y + padding)),
                         ..default()
                     },

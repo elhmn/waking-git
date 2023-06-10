@@ -3,6 +3,7 @@ use super::super::components::enemy_bullets::{
 };
 use super::super::components::guns::{self, Direction};
 use super::super::components::player;
+use super::super::config;
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use std::time::Duration;
 
@@ -323,11 +324,10 @@ fn spawn_bullet(
     };
 
     let size = 20.;
-    let col_color = "26a64166";
     let col_sprite = SpriteBundle {
         transform: Transform::from_translation(Vec3::new(0., 0., -0.1)),
         sprite: Sprite {
-            color: Color::hex(col_color).unwrap_or_default(),
+            color: Color::hex(config::get_col_color()).unwrap_or_default(),
             custom_size: Some(Vec2::new(size * 2., size * 2.)),
             ..default()
         },

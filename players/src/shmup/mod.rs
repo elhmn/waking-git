@@ -1,4 +1,5 @@
 pub mod components;
+pub mod config;
 pub mod debug;
 pub mod placer;
 pub mod plugin;
