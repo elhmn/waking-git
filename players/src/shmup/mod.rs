@@ -32,7 +32,7 @@ pub fn run(data: converters::shmup::Data) {
     App::new()
         .add_plugins(default_plugins())
         .add_plugin(LogDiagnosticsPlugin::default())
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin)
         .add_system_set(SystemSet::new().with_run_criteria(FixedTimestep::step(TIMESTEP_60_FPS)))
         .insert_resource(WorldData(data))
         .add_plugin(plugin::ShmupPlugin)

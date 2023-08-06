@@ -2,7 +2,7 @@ use assert_cmd::prelude::*;
 use core::utils::test;
 use core::utils::test::TMP_DIR;
 use core::{converters::shmup, extractor, server};
-use reqwest;
+
 use std::process::{Child, Command};
 
 const SERVER_PORT: &str = "4242";
@@ -28,7 +28,7 @@ fn start_server() -> Child {
 }
 
 fn is_server_running() -> bool {
-    let url = format!("http://localhost:4242/ping");
+    let url = "http://localhost:4242/ping".to_string();
     let resp = match reqwest::blocking::get(url) {
         Ok(resp) => resp,
         Err(err) => {
@@ -53,7 +53,7 @@ fn get_scan_extracted() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         let json_body = serde_json::to_string(&body).unwrap();
-        let url = format!("http://localhost:4242/scan/extracted");
+        let url = "http://localhost:4242/scan/extracted".to_string();
         let client = reqwest::blocking::Client::new();
         let resp = client
             .get(url)
@@ -62,7 +62,7 @@ fn get_scan_extracted() -> Result<(), Box<dyn std::error::Error>> {
             .send()
             .unwrap();
 
-        assert_eq!(resp.status().is_success(), true);
+        assert!(resp.status().is_success());
         assert_eq!(
             resp.headers().get("content-type").unwrap(),
             "application/json"
@@ -81,7 +81,7 @@ fn get_scan_extracted() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         let json_body = serde_json::to_string(&body).unwrap();
-        let url = format!("http://localhost:4242/scan/extracted");
+        let url = "http://localhost:4242/scan/extracted".to_string();
         let client = reqwest::blocking::Client::new();
         let resp = client
             .get(url)
@@ -90,7 +90,7 @@ fn get_scan_extracted() -> Result<(), Box<dyn std::error::Error>> {
             .send()
             .unwrap();
 
-        assert_eq!(resp.status().is_server_error(), true);
+        assert!(resp.status().is_server_error());
     }
 
     //stop the server
@@ -112,7 +112,7 @@ fn get_scan_converted() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         let json_body = serde_json::to_string(&body).unwrap();
-        let url = format!("http://localhost:4242/scan/converted");
+        let url = "http://localhost:4242/scan/converted".to_string();
         let client = reqwest::blocking::Client::new();
         let resp = client
             .get(url)
@@ -121,7 +121,7 @@ fn get_scan_converted() -> Result<(), Box<dyn std::error::Error>> {
             .send()
             .unwrap();
 
-        assert_eq!(resp.status().is_success(), true);
+        assert!(resp.status().is_success());
         assert_eq!(
             resp.headers().get("content-type").unwrap(),
             "application/json"
@@ -140,7 +140,7 @@ fn get_scan_converted() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         let json_body = serde_json::to_string(&body).unwrap();
-        let url = format!("http://localhost:4242/scan/converted");
+        let url = "http://localhost:4242/scan/converted".to_string();
         let client = reqwest::blocking::Client::new();
         let resp = client
             .get(url)
@@ -149,7 +149,7 @@ fn get_scan_converted() -> Result<(), Box<dyn std::error::Error>> {
             .send()
             .unwrap();
 
-        assert_eq!(resp.status().is_server_error(), true);
+        assert!(resp.status().is_server_error());
     }
 
     //stop the server
@@ -171,7 +171,7 @@ fn get_scan() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         let json_body = serde_json::to_string(&body).unwrap();
-        let url = format!("http://localhost:4242/scan");
+        let url = "http://localhost:4242/scan".to_string();
         let client = reqwest::blocking::Client::new();
         let resp = client
             .get(url)
@@ -180,7 +180,7 @@ fn get_scan() -> Result<(), Box<dyn std::error::Error>> {
             .send()
             .unwrap();
 
-        assert_eq!(resp.status().is_success(), true);
+        assert!(resp.status().is_success());
         assert_eq!(
             resp.headers().get("content-type").unwrap(),
             "application/gzip"
@@ -201,7 +201,7 @@ fn get_scan() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         let json_body = serde_json::to_string(&body).unwrap();
-        let url = format!("http://localhost:4242/scan");
+        let url = "http://localhost:4242/scan".to_string();
         let client = reqwest::blocking::Client::new();
         let resp = client
             .get(url)
@@ -210,7 +210,7 @@ fn get_scan() -> Result<(), Box<dyn std::error::Error>> {
             .send()
             .unwrap();
 
-        assert_eq!(resp.status().is_server_error(), true);
+        assert!(resp.status().is_server_error());
     }
 
     //stop the server
