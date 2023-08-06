@@ -11,6 +11,9 @@ const CONVERTER_NAME: &str = "shmup";
 
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct Data {
+    //the id of the main scene
+    //it corresponds to the root tree of the git repository
+    pub main_scene: String,
     pub scenes: HashMap<String, Scene>,
 }
 
@@ -61,6 +64,7 @@ fn build_converter_data(extracted_data: &extractor::Data) -> Data {
     let files = &extracted_data.code.files_data;
 
     let data = Data {
+        main_scene: get_main_scene(extracted_data),
         ..Default::default()
     };
 
@@ -74,6 +78,15 @@ fn build_converter_data(extracted_data: &extractor::Data) -> Data {
 
     let data = mut_data.lock().unwrap().to_owned();
     data
+}
+
+fn get_main_scene(data: &extractor::Data) -> String {
+    let root_commit_id = &data.git.ref_target.1;
+    if let Some(root_commit) = &data.git.objects[root_commit_id].commit {
+        return root_commit.tree.to_string();
+    }
+
+    "".to_string()
 }
 
 fn add_scenes(

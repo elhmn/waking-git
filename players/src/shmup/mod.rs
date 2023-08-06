@@ -1,5 +1,7 @@
 pub mod components;
+pub mod config;
 pub mod debug;
+pub mod placer;
 pub mod plugin;
 pub mod systems;
 
@@ -12,7 +14,7 @@ use core::converters;
 const TIMESTEP_60_FPS: f64 = 1. / 60.;
 
 #[derive(Resource, Default, Debug)]
-struct WorldData(converters::shmup::Data);
+pub struct WorldData(converters::shmup::Data);
 
 fn default_plugins() -> PluginGroupBuilder {
     DefaultPlugins.set({
@@ -30,12 +32,8 @@ pub fn run(data: converters::shmup::Data) {
     App::new()
         .add_plugins(default_plugins())
         .add_plugin(LogDiagnosticsPlugin::default())
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
-        .add_system_set(
-            SystemSet::new()
-                // This prints out "hello world" once every second
-                .with_run_criteria(FixedTimestep::step(TIMESTEP_60_FPS)),
-        )
+        .add_plugin(FrameTimeDiagnosticsPlugin)
+        .add_system_set(SystemSet::new().with_run_criteria(FixedTimestep::step(TIMESTEP_60_FPS)))
         .insert_resource(WorldData(data))
         .add_plugin(plugin::ShmupPlugin)
         .run();

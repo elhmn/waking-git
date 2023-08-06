@@ -9,9 +9,35 @@ pub struct Pattern1 {
 }
 
 /// Pattern2 defines a movement pattern
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Default)]
 pub struct Pattern2 {
     pub speed: f32,
+}
+
+/// MoveTowards
+#[derive(Component, Debug)]
+pub struct MoveTowards {
+    pub max_prediction_time: f32,
+
+    pub initial_speed: f32,
+    pub max_speed: f32,
+    pub speed: f32,
+    //The angular speed
+    pub rotation: f32,
+}
+
+impl Default for MoveTowards {
+    fn default() -> Self {
+        let initial_speed = 25.;
+        let max_speed = 50.;
+        Self {
+            max_prediction_time: 1000.,
+            initial_speed,
+            max_speed,
+            speed: initial_speed,
+            rotation: 0.1,
+        }
+    }
 }
 
 /// Pattern3 defines a movement pattern
