@@ -46,7 +46,7 @@ fn fail_to_parse_wrong_url() -> Result<(), Box<dyn std::error::Error>> {
         let mut cmd = Command::cargo_bin("wake")?;
         cmd.arg("scan").arg(t.url);
         cmd.assert()
-            .success()
+            .failure()
             .stdout(predicate::str::contains(t.exp));
     }
 
