@@ -230,7 +230,7 @@ fn build_tree_object(path: String, entry: &TreeEntry, repo: &Repository) -> Tree
         path: path.clone(),
         path_sha: hash::new(path),
         filemode: entry.filemode(),
-        objects: (|| -> Vec<String> {
+        objects: {
             let mut objs = vec![];
             let t = repo.find_tree(entry.id()).unwrap();
 
@@ -245,7 +245,7 @@ fn build_tree_object(path: String, entry: &TreeEntry, repo: &Repository) -> Tree
             })
             .unwrap();
             objs
-        })(),
+        },
     }
 }
 

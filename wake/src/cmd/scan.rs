@@ -4,6 +4,7 @@ use core::converters;
 use core::extractor;
 use core::repo;
 use spinners::{Spinner, Spinners};
+use std::process::exit;
 
 #[derive(Args, Debug)]
 pub struct RunArgs {
@@ -18,7 +19,8 @@ pub fn run(args: &RunArgs, conf: config::Config) {
     let mut git_repo = match repo::clone_repository(&repo, &conf) {
         Ok(r) => r,
         Err(err) => {
-            return println!("Error: {err}");
+            println!("Error: {err}");
+            exit(1);
         }
     };
     spin.stop_with_message(format!(
@@ -31,7 +33,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
         Ok(d) => d,
         Err(err) => {
             println!("Error: failed to extract repository data: {err}");
-            return;
+            exit(1);
         }
     };
     spin.stop_with_message(format!(
@@ -43,6 +45,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
     let conv = converters::shmup::new();
     if let Err(err) = converters::convert(&mut git_repo, extracted_data, &conv) {
         println!("Error: failed to convert extracted data: {err}");
+        exit(1);
     };
     spin.stop_with_message(format!(
         "Convertion completed checkout the `{}` generated.",
