@@ -2,6 +2,6 @@
 members = [
 	"wake",
 	"players",
-	"core",
+	"waking-git-core",
 ]
 resolver="2"
