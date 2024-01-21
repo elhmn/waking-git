@@ -1,6 +1,6 @@
 [package]
 name = "waking-git-core"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 license = "MIT"
 description = "Library implementing the core functionality of waking-git"
@@ -8,18 +8,11 @@ repository = "https://github.com/elhmn/waking-git"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[features]
-types = []
-default = ["types", "dep:rust-code-analysis"]
-
 [dependencies]
 git2 = "0.15.0"
 url = "2.3.1"
 walkdir = "2.3.2"
-# rust-code-analysis is made unavailable by default as we want to avoid
-# wasm compilation issues related to tree-sitter, see:
-# https://github.com/tree-sitter/tree-sitter/discussions/2010
-rust-code-analysis = { version = "0.0.25", optional = true }
+rust-code-analysis = "0.0.25"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 home = "0.5.4"
