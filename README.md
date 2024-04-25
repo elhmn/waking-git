@@ -27,6 +27,7 @@ The project is built in `rust`, and uses git as a strong dependency.
 - [Git](https://git-scm.com/downloads)
 - [Docker](https://docs.docker.com/engine/install/)
 - [GNU make](https://www.gnu.org/software/make/)
+- [Bevy dependencies](https://github.com/bevyengine/bevy/blob/latest/docs/linux_dependencies.md)
 
 ### Architecture
 
