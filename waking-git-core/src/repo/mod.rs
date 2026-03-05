@@ -92,7 +92,7 @@ pub fn new_repo_from_url(url: String, conf: &config::Config) -> Result<Repo, Str
     let path = path::Path::new(&dest_path);
     let git_repo: Repository = if !path.exists() {
         let tmp_git2_repo = format!("/tmp/git2-{folder_name}");
-        let repo = match Repository::init(tmp_git2_repo.to_string()) {
+        let repo = match Repository::init(&tmp_git2_repo) {
             Ok(r) => r,
             Err(err) => {
                 return Err(format!("Failed to initialize repo {tmp_git2_repo}: {err}"));
@@ -127,7 +127,7 @@ pub fn new_repo_from_url(url: String, conf: &config::Config) -> Result<Repo, Str
         builder.branch(&branch);
         builder.fetch_options(fetch_option);
 
-        match builder.clone(url.as_str(), &path) {
+        match builder.clone(url.as_str(), path) {
             Ok(git_repo) => git_repo,
             Err(err) => {
                 return Err(format!("Failed to clone `{url}` repository: {err}"));
