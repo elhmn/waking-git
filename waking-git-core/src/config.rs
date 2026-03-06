@@ -32,7 +32,7 @@ impl Config {
 pub fn get_home_dir() -> String {
     // check if we are running the binary for integration tests
     let dir: PathBuf = if std::env::var("WAKE_TEST_MODE").is_ok() {
-        PathBuf::from("./")
+        PathBuf::from(".")
     } else {
         match home::home_dir() {
             Some(d) => d,
