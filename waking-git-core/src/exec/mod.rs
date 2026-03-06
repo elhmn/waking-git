@@ -23,7 +23,7 @@ pub fn run_player(player: String, file: String) -> Result<String, io::Error> {
 
     if !output.status.success() {
         let err = String::from_utf8(output.stderr).unwrap_or(String::from(""));
-        return Err(io::Error::new(io::ErrorKind::Other, err));
+        return Err(io::Error::other(err));
     }
 
     let out = String::from_utf8(output.stdout).unwrap_or(String::from(""));

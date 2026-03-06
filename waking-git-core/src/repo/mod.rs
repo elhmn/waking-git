@@ -1,5 +1,5 @@
 use crate::config;
-use git2::Repository;
+use git2::{build::RepoBuilder, Direction, FetchOptions, Repository};
 use std::fs;
 use std::path;
 use url::Url;
@@ -91,7 +91,43 @@ pub fn new_repo_from_url(url: String, conf: &config::Config) -> Result<Repo, Str
     let dest_path = format!("{repo_storage}/{folder_name}");
     let path = path::Path::new(&dest_path);
     let git_repo: Repository = if !path.exists() {
-        match Repository::clone(url.as_str(), &dest_path) {
+        let tmp_git2_repo = format!("/tmp/git2-{folder_name}");
+        let repo = match Repository::init(&tmp_git2_repo) {
+            Ok(r) => r,
+            Err(err) => {
+                return Err(format!("Failed to initialize repo {tmp_git2_repo}: {err}"));
+            }
+        };
+
+        // Fetch the default branch
+        let mut remote = match repo.remote_anonymous(url.as_str()) {
+            Ok(r) => r,
+            Err(err) => {
+                return Err(format!(
+                    "Failed to fetch the remote_anonymous of {url}: {err}"
+                ));
+            }
+        };
+        if let Err(err) = remote.connect(Direction::Fetch) {
+            return Err(format!("Failed to connect the remote: {err}"));
+        }
+        let default = match remote.default_branch() {
+            Ok(b) => b,
+            Err(err) => {
+                return Err(format!("Failed to get the default branch: {err}"));
+            }
+        };
+        let branch = default.as_str().unwrap().replace("refs/heads/", "");
+
+        // Set the --depth option to 1.
+        let mut fetch_option = FetchOptions::new();
+        fetch_option.depth(1);
+
+        let mut builder = RepoBuilder::new();
+        builder.branch(&branch);
+        builder.fetch_options(fetch_option);
+
+        match builder.clone(url.as_str(), path) {
             Ok(git_repo) => git_repo,
             Err(err) => {
                 return Err(format!("Failed to clone `{url}` repository: {err}"));

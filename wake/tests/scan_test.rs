@@ -1,4 +1,4 @@
-use assert_cmd::prelude::*;
+use assert_cmd::{assert, prelude::*};
 use core::utils::test;
 use core::utils::test::TMP_DIR;
 use std::path::PathBuf;
@@ -65,7 +65,7 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
     //we should be able clone the repository successfully
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("repository cloned successfully"));
+        .stderr(predicate::str::contains("repository cloned successfully"));
 
     //the ./wake/repos/github-com-elhmn-ckp directory should be created
     let dir = PathBuf::from(TMP_DIR);
@@ -73,6 +73,10 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
     let expected_dir = format!("{}/{}/{}", tmp_folder, "repos", "github-com-elhmn-ckp");
     println!("expected_dir: {expected_dir}");
     assert!(std::path::Path::new(expected_dir.as_str()).exists());
+
+    //Is it a shallow clone.
+    let shallow_file_path = format!("{expected_dir}/.git/shallow");
+    assert!(std::path::Path::new(shallow_file_path.as_str()).exists());
 
     //the ./tmp/scanner/github-com-elhmn-ckp/extracted.json directory should be created
     let expected_extracted_file = format!(
@@ -96,12 +100,12 @@ fn doesnt_fetch_repository_if_already_exists() -> Result<(), Box<dyn std::error:
     //we should be able clone the repository successfully the first time
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("repository cloned successfully"));
+        .stderr(predicate::str::contains("repository cloned successfully"));
 
     //then work even though the repository already exist on disk
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("repository cloned successfully"));
+        .stderr(predicate::str::contains("repository cloned successfully"));
 
     test::teardown();
     Ok(())
