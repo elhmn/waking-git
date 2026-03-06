@@ -1,4 +1,4 @@
-use assert_cmd::prelude::*;
+use assert_cmd::{assert, prelude::*};
 use core::utils::test;
 use core::utils::test::TMP_DIR;
 use std::path::PathBuf;
@@ -73,6 +73,10 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
     let expected_dir = format!("{}/{}/{}", tmp_folder, "repos", "github-com-elhmn-ckp");
     println!("expected_dir: {expected_dir}");
     assert!(std::path::Path::new(expected_dir.as_str()).exists());
+
+    //Is it a shallow clone.
+    let shallow_file_path = format!("{expected_dir}/.git/shallow");
+    assert!(std::path::Path::new(shallow_file_path.as_str()).exists());
 
     //the ./tmp/scanner/github-com-elhmn-ckp/extracted.json directory should be created
     let expected_extracted_file = format!(
