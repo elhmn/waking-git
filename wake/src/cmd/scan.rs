@@ -42,7 +42,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
     ));
 
     let mut spin = Spinner::new(Spinners::Line, "Converting data...".to_string());
-    let conv = converters::shmup::new();
+    let conv = converters::codealkemi::new();
     if let Err(err) = converters::convert(&mut git_repo, extracted_data, &conv) {
         println!("Error: failed to convert extracted data: {err}");
         exit(1);
