@@ -12,6 +12,7 @@ const CONVERTER_NAME: &str = "codealkemi";
 #[derive(Serialize, Deserialize, Default, Debug, Clone)]
 pub struct Data {
     pub version: String,
+    pub name: String,
     pub repo_name: String,
     pub url: String,
     pub commit: String,
@@ -76,6 +77,7 @@ fn build_converter_data(extracted_data: &extractor::Data) -> Data {
         main_scene: get_main_scene(extracted_data),
         commit: commit_oid.to_string(),
         repo_name: repo_name.to_owned(),
+        name: CONVERTER_NAME.to_owned(),
         ..Default::default()
     };
 
