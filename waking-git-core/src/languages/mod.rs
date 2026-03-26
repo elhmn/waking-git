@@ -48,8 +48,10 @@ pub fn spec_from_extension(languages: &Languages, extension: &str) -> Spec {
     if !found.is_empty() {
         let mut min = i32::MAX;
         for f in found {
-            // we exclude file that have no tm_scope set, as that means
-            // we have no grammar supported for these language entry
+            // We exclude file that have no tm_scope set, as that means
+            // we have no grammar supported for these language entry.
+            // Also note that the way this language specs are fetched
+            // is not optimal and needs to be improved.
             if f.1.language_id < min && f.1.tm_scope.clone().unwrap_or_default() != "none" {
                 color = f.1.color.clone().unwrap_or_default();
                 kind = f.1.kind.clone();
