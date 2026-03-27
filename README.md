@@ -40,7 +40,7 @@ In order to run `waking-git` you need to [install](https://www.rust-lang.org/too
 **How to scan a repository ?**
 
 ```console
-$ cargo run -p wake -- scan https://github.com/elhmn/waking-git
+$ cargo run -p wake -- scan shmup https://github.com/elhmn/waking-git
 ```
 
 **How to play ?**
@@ -127,7 +127,7 @@ Make sure to build and install the player before running it:
 Then run: `cargo run -p wake -- play shmup https://github.com/elhmn/waking-git`
 
 Scan a repo:
-`cargo run -p wake -- scan https://github.com/elhmn/waking-git`
+`cargo run -p wake -- scan shmup https://github.com/elhmn/waking-git`
 
 Run the player:
 `cargo run -p players -- shmup /Users/elhmn/.wake/scanner/github-com-elhmn-waking-git/shmup-converted.json`

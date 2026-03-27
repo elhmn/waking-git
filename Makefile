@@ -110,7 +110,7 @@ help: Makefile
 	@echo "Then run: \`"cargo run -p wake -- play shmup https://github.com/elhmn/waking-git"\`"
 	@echo ""
 	@echo "Scan a repo:"
-	@echo "\`"cargo run -p wake -- scan https://github.com/elhmn/waking-git"\`"
+	@echo "\`"cargo run -p wake -- scan shmup https://github.com/elhmn/waking-git"\`"
 	@echo ""
 	@echo "Run the player:"
 	@echo "\`"cargo run -p players -- shmup ~/.wake/scanner/github-com-elhmn-waking-git/shmup-converted.json"\`"
