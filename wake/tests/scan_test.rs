@@ -55,6 +55,51 @@ fn fail_to_parse_wrong_url() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
+fn clone_repository_with_codealkemi_converter() -> Result<(), Box<dyn std::error::Error>> {
+    test::setup();
+    let url = "https://github.com/elhmn/ckp";
+
+    let mut cmd = Command::cargo_bin("wake")?;
+    cmd.current_dir(TMP_DIR)
+        .arg("scan")
+        .arg("codealkemi")
+        .arg(url);
+
+    //we should be able clone the repository successfully
+    cmd.assert()
+        .success()
+        .stderr(predicate::str::contains("repository cloned successfully"));
+
+    //the ./wake/repos/github-com-elhmn-ckp directory should be created
+    let dir = PathBuf::from(TMP_DIR);
+    let tmp_folder = format!("{}/{}", dir.to_str().unwrap_or(""), ".wake");
+    let expected_dir = format!("{}/{}/{}", tmp_folder, "repos", "github-com-elhmn-ckp");
+    println!("expected_dir: {expected_dir}");
+    assert!(std::path::Path::new(expected_dir.as_str()).exists());
+
+    //Is it a shallow clone.
+    let shallow_file_path = format!("{expected_dir}/.git/shallow");
+    assert!(std::path::Path::new(shallow_file_path.as_str()).exists());
+
+    //the ./tmp/scanner/github-com-elhmn-ckp/extracted.json directory should be created
+    let expected_extracted_file = format!(
+        "{}/{}/{}/{}",
+        tmp_folder, "scanner", "github-com-elhmn-ckp", "extracted.json"
+    );
+    assert!(std::path::Path::new(expected_extracted_file.as_str()).exists());
+
+    //the ./tmp/scanner/github-com-elhmn-ckp/codealkemi-converted.json directory should be created
+    let expected_converted_file = format!(
+        "{}/{}/{}/{}",
+        tmp_folder, "scanner", "github-com-elhmn-ckp", "codealkemi-converted.json"
+    );
+    assert!(std::path::Path::new(expected_converted_file.as_str()).exists());
+
+    test::teardown();
+    Ok(())
+}
+
+#[test]
 fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
     test::setup();
     let url = "https://github.com/elhmn/ckp";
@@ -84,6 +129,13 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
         tmp_folder, "scanner", "github-com-elhmn-ckp", "extracted.json"
     );
     assert!(std::path::Path::new(expected_extracted_file.as_str()).exists());
+
+    //the ./tmp/scanner/github-com-elhmn-ckp/shmup-converted.json directory should be created
+    let expected_converted_file = format!(
+        "{}/{}/{}/{}",
+        tmp_folder, "scanner", "github-com-elhmn-ckp", "shmup-converted.json"
+    );
+    assert!(std::path::Path::new(expected_converted_file.as_str()).exists());
 
     test::teardown();
     Ok(())
