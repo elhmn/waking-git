@@ -169,7 +169,7 @@ fn blob_to_entity(
         oid: blob.sha.to_owned(),
         name: blob.name.to_owned(),
         path: blob.path.to_owned(),
-        language: language,
+        language,
         ..Default::default()
     }
 }
@@ -184,7 +184,7 @@ fn get_language_spec(
         return languages::spec_from_extension(languages, &converted_extension);
     }
 
-    return languages::Spec {
+    languages::Spec {
         ..Default::default()
-    };
+    }
 }

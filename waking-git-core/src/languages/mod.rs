@@ -61,11 +61,7 @@ pub fn spec_from_extension(languages: &Languages, extension: &str) -> Spec {
         }
     }
 
-    return Spec {
-        color: color,
-        kind: kind,
-        name: name,
-    };
+    Spec { color, kind, name }
 }
 
 pub fn color_from_extension(languages: &Languages, extension: &str) -> String {
