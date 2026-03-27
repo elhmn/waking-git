@@ -22,6 +22,48 @@ pub struct Language {
 
 pub type Languages = BTreeMap<String, Language>;
 
+// Spec is a list of language specification
+#[derive(Default)]
+pub struct Spec {
+    pub name: String,
+    pub color: String,
+    pub kind: String,
+}
+
+pub fn spec_from_extension(languages: &Languages, extension: &str) -> Spec {
+    let mut found = Vec::new();
+
+    for l in languages {
+        if let Some(e) = &l.1.extensions {
+            if e.contains(&extension.to_string()) {
+                found.push(l);
+            }
+        }
+    }
+
+    let mut color = "".to_string();
+    let mut kind = "".to_string();
+    let mut name = "".to_string();
+
+    if !found.is_empty() {
+        let mut min = i32::MAX;
+        for f in found {
+            // We exclude file that have no tm_scope set, as that means
+            // we have no grammar supported for these language entry.
+            // Also note that the way this language specs are fetched
+            // is not optimal and needs to be improved.
+            if f.1.language_id < min && f.1.tm_scope.clone().unwrap_or_default() != "none" {
+                color = f.1.color.clone().unwrap_or_default();
+                kind = f.1.kind.clone();
+                name = f.0.to_owned();
+                min = f.1.language_id;
+            }
+        }
+    }
+
+    Spec { color, kind, name }
+}
+
 pub fn color_from_extension(languages: &Languages, extension: &str) -> String {
     let mut found = Vec::new();
 
