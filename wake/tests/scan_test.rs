@@ -44,7 +44,7 @@ fn fail_to_parse_wrong_url() -> Result<(), Box<dyn std::error::Error>> {
 
     for t in tests {
         let mut cmd = Command::cargo_bin("wake")?;
-        cmd.arg("scan").arg(t.url);
+        cmd.arg("scan").arg("shmup").arg(t.url);
         cmd.assert()
             .failure()
             .stdout(predicate::str::contains(t.exp));
@@ -60,7 +60,7 @@ fn clone_repository() -> Result<(), Box<dyn std::error::Error>> {
     let url = "https://github.com/elhmn/ckp";
 
     let mut cmd = Command::cargo_bin("wake")?;
-    cmd.current_dir(TMP_DIR).arg("scan").arg(url);
+    cmd.current_dir(TMP_DIR).arg("scan").arg("shmup").arg(url);
 
     //we should be able clone the repository successfully
     cmd.assert()
@@ -95,7 +95,7 @@ fn doesnt_fetch_repository_if_already_exists() -> Result<(), Box<dyn std::error:
     let url = "https://github.com/elhmn/ckp";
 
     let mut cmd = Command::cargo_bin("wake")?;
-    cmd.current_dir(TMP_DIR).arg("scan").arg(url);
+    cmd.current_dir(TMP_DIR).arg("scan").arg("shmup").arg(url);
 
     //we should be able clone the repository successfully the first time
     cmd.assert()
