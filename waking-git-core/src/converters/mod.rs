@@ -1,5 +1,5 @@
-pub mod shmup;
 pub mod codealkemi;
+pub mod shmup;
 use crate::config;
 use crate::extractor;
 use crate::repo;

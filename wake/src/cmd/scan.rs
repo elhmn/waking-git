@@ -62,7 +62,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
                 println!("Error: failed to convert extracted data: {err}");
                 exit(1);
             }
-        },
+        }
         CODEALKEMI_CONVERTER => {
             if let Err(err) = converters::convert(
                 &mut git_repo,
@@ -72,7 +72,7 @@ pub fn run(args: &RunArgs, conf: config::Config) {
                 println!("Error: failed to convert extracted data: {err}");
                 exit(1);
             }
-        },
+        }
         _ => {}
     };
 
